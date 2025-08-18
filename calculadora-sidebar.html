@@ -23,9 +23,10 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<!-- A principal mudança está aqui: removemos as classes de centralização -->
+<body class="bg-gray-100 p-4">
 
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 md:p-8">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 md:p-8 mx-auto">
         <div class="text-center mb-6">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Calculadora de Prazos</h1>
             <p id="status-feriados" class="text-sm text-gray-500 mt-2">Carregando feriados...</p>
@@ -83,10 +84,8 @@
         };
         
         let listaDeFeriados = {};
-        let ultimoResultado = null; // Armazena o último resultado para exportação
+        let ultimoResultado = null;
         const diasDaSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-
-        // --- FUNÇÕES DE LÓGICA ---
 
         async function buscarFeriadosOnline(url) {
             const controller = new AbortController();
@@ -170,7 +169,6 @@
             const dataInicio = new Date(`${document.getElementById('data-inicio').value}T00:00:00`);
             const diasUteis = document.getElementById('dias-uteis').value;
 
-            // Título e Resumo
             doc.setFontSize(18);
             doc.text("Relatório de Contagem de Prazo", 105, 20, { align: "center" });
             doc.setFontSize(12);
@@ -178,7 +176,6 @@
             doc.text(`Dias Úteis Contados: ${diasUteis}`, 14, 42);
             doc.text(`Data Final Encontrada: ${ultimoResultado.dataFinal.toLocaleDateString('pt-BR')}`, 14, 49);
             
-            // Função para desenhar o cabeçalho da tabela
             const drawTableHeader = (yPos) => {
                 doc.setFontSize(10);
                 doc.setTextColor(100);
@@ -191,7 +188,6 @@
                 return newY + 5;
             };
 
-            // Tabela de Detalhes
             doc.setFontSize(14);
             doc.text("Detalhamento da Contagem", 14, 65);
             doc.setLineWidth(0.5);
@@ -214,10 +210,10 @@
                     statusText = 'Fim de semana';
                 }
 
-                const lines = doc.splitTextToSize(statusText, 65); // Divide o texto para caber na coluna
-                const blockHeight = lines.length * 5; // Altura do bloco de texto (5 é uma boa altura de linha)
+                const lines = doc.splitTextToSize(statusText, 65);
+                const blockHeight = lines.length * 5;
 
-                if (y + blockHeight > 280) { // Adiciona nova página se o conteúdo passar do limite
+                if (y + blockHeight > 280) {
                     doc.addPage();
                     y = 20;
                     y = drawTableHeader(y);
@@ -226,16 +222,14 @@
                 
                 doc.text(diaFormatado, 14, y);
                 doc.text(nomeDiaSemana, 50, y);
-                doc.text(lines, 130, y); // jsPDF desenha o array de linhas automaticamente
+                doc.text(lines, 130, y);
 
-                y += blockHeight + 2; // Move y para baixo pela altura do bloco + um espaçamento
+                y += blockHeight + 2;
             });
 
             doc.save(`contagem_prazo_${new Date().toISOString().split('T')[0]}.pdf`);
         }
         
-        // --- INICIALIZAÇÃO E EVENTOS ---
-
         document.addEventListener('DOMContentLoaded', async () => {
             const statusFeriadosEl = document.getElementById('status-feriados');
             listaDeFeriados = await buscarFeriadosOnline(googleSheetUrl);
@@ -261,7 +255,6 @@
             const detalhesLista = document.getElementById('detalhes-lista');
             const exportDiv = document.getElementById('export-div');
 
-            // Reset UI
             resultadoDiv.classList.add('hidden');
             errorDiv.classList.add('hidden');
             detalhesDiv.classList.add('hidden');
@@ -280,13 +273,11 @@
                 
                 const dataInicio = new Date(`${dataInicioStr}T00:00:00`);
                 const resultado = calcularPrazoUtil(dataInicio, diasUteis, listaDeFeriados);
-                ultimoResultado = resultado; // Salva para exportação
+                ultimoResultado = resultado;
 
-                // Mostra o resultado final
                 document.getElementById('data-final').textContent = resultado.dataFinal.toLocaleDateString('pt-BR');
                 resultadoDiv.classList.remove('hidden');
 
-                // Popula e mostra o detalhamento
                 resultado.detalhes.forEach(dia => {
                     let statusClass = '';
                     let statusText = dia.status;
@@ -313,7 +304,7 @@
                     detalhesLista.innerHTML += itemHtml;
                 });
                 detalhesDiv.classList.remove('hidden');
-                exportDiv.classList.remove('hidden'); // Mostra o botão de exportar
+                exportDiv.classList.remove('hidden');
 
             } catch (error) {
                 errorDiv.textContent = error.message;
