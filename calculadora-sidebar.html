@@ -23,7 +23,6 @@
         }
     </style>
 </head>
-<!-- A principal mudança está aqui: removemos as classes de centralização -->
 <body class="bg-gray-100 p-4">
 
     <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 md:p-8 mx-auto">
@@ -77,9 +76,14 @@
         // --- CONFIGURAÇÃO ---
         const SHEET_ID = "14FujwpVbZDXsdeDyCd8vOErYiGls1cCphBryRmJ4ND4";
         const SHEET_GID = "0";
+        // **MUDANÇA PRINCIPAL**: Novo proxy CORS mais confiável
+        const CORS_PROXY = 'https://corsproxy.io/?';
         const googleSheetUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
+        const finalFetchUrl = `${CORS_PROXY}${encodeURIComponent(googleSheetUrl)}`;
+        
+        const CACHED_HOLIDAYS_KEY = 'cachedHolidaysList'; // Chave para o localStorage
 
-        const feriadosFallback = {
+        let feriadosFallback = {
             "2025-01-01": "Recesso Judiciário", "2025-01-02": "Recesso Judiciário", "2025-01-03": "Recesso Judiciário", "2025-01-04": "Recesso Judiciário", "2025-01-05": "Recesso Judiciário", "2025-01-06": "Recesso Judiciário", "2025-01-07": "Recesso Judiciário", "2025-01-08": "Suspensão do Prazo", "2025-01-09": "Suspensão do Prazo", "2025-01-10": "Suspensão do Prazo", "2025-01-11": "Suspensão do Prazo", "2025-01-12": "Suspensão do Prazo", "2025-01-13": "Suspensão do Prazo", "2025-01-14": "Suspensão do Prazo", "2025-01-15": "Suspensão do Prazo", "2025-01-16": "Suspensão do Prazo", "2025-01-17": "Suspensão do Prazo", "2025-01-18": "Suspensão do Prazo", "2025-01-19": "Suspensão do Prazo", "2025-01-20": "Suspensão do Prazo", "2025-03-03": "Carnaval", "2025-03-04": "Carnaval", "2025-03-05": "Carnaval", "2025-04-17": "Quinta-Feira Santa", "2025-04-18": "Paixão de Cristo", "2025-04-21": "Tiradentes", "2025-05-01": "Dia do Trabalhador", "2025-05-02": "Ponto Facultativo", "2025-05-19": "Dia do Defensor", "2025-06-19": "Corpus Christi", "2025-06-20": "Ponto Facultativo", "2025-06-27": "Festival de Parintins", "2025-07-04": "Instalação do Jud.", "2025-08-04": "Semana de Atenção à Pessoa", "2025-08-05": "Semana de Atenção à Pessoa", "2025-08-06": "Semana de Atenção à Pessoa", "2025-08-07": "Semana de Atenção à Pessoa", "2025-08-08": "Semana de Atenção à Pessoa", "2025-08-11": "Dia do Advogado", "2025-09-05": "Elevação do Am", "2025-09-07": "Independência", "2025-10-12": "N. S. Aparecida", "2025-10-24": "Elevação de MAO", "2025-10-28": "Dia do Servidor", "2025-11-02": "Finados", "2025-11-15": "Proclamação da República", "2025-11-20": "Consciência Negra", "2025-11-21": "Ponto Facultativo", "2025-12-08": "N. S. da Conceição", "2025-12-14": "Dia do MP", "2025-12-20": "Recesso", "2025-12-21": "Recesso", "2025-12-22": "Recesso", "2025-12-23": "Recesso", "2025-12-24": "Recesso", "2025-12-25": "Recesso", "2025-12-26": "Recesso", "2025-12-27": "Recesso", "2025-12-28": "Recesso", "2025-12-29": "Recesso", "2025-12-30": "Recesso", "2025-12-31": "Recesso"
         };
         
@@ -98,7 +102,7 @@
                 
                 const csvData = await response.text();
                 const feriados = {};
-                const rows = csvData.split('\n').slice(1);
+                const rows = csvData.replace(/\r/g, '').split('\n').slice(1);
 
                 rows.forEach(row => {
                     const columns = row.split(',');
@@ -107,7 +111,8 @@
                         const dateParts = columns[1].trim().split('/');
                         if (dateParts.length === 3) {
                             const [day, month, year] = dateParts;
-                            const dataFormatada = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                            const fullYear = year.length === 2 ? `20${year}` : year;
+                            const dataFormatada = `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
                             feriados[dataFormatada] = nomeFeriado;
                         }
                     }
@@ -159,7 +164,10 @@
 
         function exportarParaPDF() {
             if (!ultimoResultado) {
-                alert("Nenhum resultado para exportar. Por favor, calcule um prazo primeiro.");
+                const errorDiv = document.getElementById('error-div');
+                errorDiv.textContent = "Nenhum resultado para exportar. Por favor, calcule um prazo primeiro.";
+                errorDiv.classList.remove('hidden');
+                setTimeout(() => errorDiv.classList.add('hidden'), 3000);
                 return;
             }
 
@@ -232,15 +240,48 @@
         
         document.addEventListener('DOMContentLoaded', async () => {
             const statusFeriadosEl = document.getElementById('status-feriados');
-            listaDeFeriados = await buscarFeriadosOnline(googleSheetUrl);
             
-            if (listaDeFeriados && Object.keys(listaDeFeriados).length > 0) {
-                statusFeriadosEl.textContent = `Feriados carregados da planilha online.`;
-                statusFeriadosEl.classList.replace('text-gray-500', 'text-green-600');
-            } else {
-                listaDeFeriados = feriadosFallback;
-                statusFeriadosEl.textContent = 'Aviso: Usando lista de feriados interna (offline).';
+            try {
+                const feriadosOnline = await buscarFeriadosOnline(finalFetchUrl);
+
+                if (!feriadosOnline || Object.keys(feriadosOnline).length === 0) {
+                    throw new Error("A lista de feriados online retornou vazia ou inválida.");
+                }
+
+                listaDeFeriados = feriadosOnline;
+                localStorage.setItem(CACHED_HOLIDAYS_KEY, JSON.stringify(listaDeFeriados));
+                statusFeriadosEl.textContent = 'Feriados carregados da planilha online.';
                 statusFeriadosEl.classList.replace('text-gray-500', 'text-amber-600');
+                statusFeriadosEl.classList.add('text-green-600');
+
+            } catch (error) {
+                console.error("Falha ao buscar feriados online. Tentando usar o cache.", error);
+                const cachedFeriadosJSON = localStorage.getItem(CACHED_HOLIDAYS_KEY);
+                let hasCache = false;
+                
+                if (cachedFeriadosJSON) {
+                    try {
+                        const cachedFeriados = JSON.parse(cachedFeriadosJSON);
+                        if (cachedFeriados && typeof cachedFeriados === 'object' && Object.keys(cachedFeriados).length > 0) {
+                            listaDeFeriados = cachedFeriados;
+                            hasCache = true;
+                        }
+                    } catch (e) {
+                        console.error("Erro ao carregar feriados do cache:", e);
+                    }
+                }
+
+                if (!hasCache) {
+                    listaDeFeriados = feriadosFallback;
+                }
+
+                if (hasCache) {
+                    statusFeriadosEl.textContent = 'Aviso: Usando a última lista de feriados salva (offline).';
+                } else {
+                    statusFeriadosEl.textContent = 'Aviso: Usando lista de feriados interna (offline).';
+                }
+                statusFeriadosEl.classList.replace('text-gray-500', 'text-green-600');
+                statusFeriadosEl.classList.add('text-amber-600');
             }
         });
 
@@ -272,6 +313,11 @@
                 }
                 
                 const dataInicio = new Date(`${dataInicioStr}T00:00:00`);
+                
+                if (Object.keys(listaDeFeriados).length === 0) {
+                     throw new Error("A lista de feriados não pôde ser carregada. Tente novamente mais tarde.");
+                }
+
                 const resultado = calcularPrazoUtil(dataInicio, diasUteis, listaDeFeriados);
                 ultimoResultado = resultado;
 
