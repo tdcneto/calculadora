@@ -23,10 +23,11 @@
         }
     </style>
 </head>
-<!-- A principal mudança está aqui: removemos as classes de centralização -->
-<body class="bg-gray-100 p-4">
+<!-- CORREÇÃO: Removido todo o padding e centralização do body -->
+<body class="bg-gray-100">
 
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 md:p-8 mx-auto">
+    <!-- CORREÇÃO: Adicionado padding superior (pt-4) para dar um respiro no topo -->
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 md:p-8 mx-auto pt-4">
         <div class="text-center mb-6">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Calculadora de Prazos</h1>
             <p id="status-feriados" class="text-sm text-gray-500 mt-2">Carregando feriados...</p>
