@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Biblioteca para gerar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
@@ -69,13 +70,16 @@
 </head>
 <body class="bg-white">
 
+    <!-- Container principal agora com flexbox para ocupar 100% da altura -->
     <div class="main-container flex flex-col h-screen">
         
+        <!-- Cabeçalho (não encolhe) -->
         <div class="text-center mb-4 flex-shrink-0">
             <h1 class="text-xl font-bold text-gray-800">Calculadora de Prazos</h1>
             <p id="status-feriados" class="text-xs text-gray-500 mt-1">Carregando feriados...</p>
         </div>
 
+        <!-- Formulário (não encolhe) -->
         <form id="prazo-form" class="space-y-4 flex-shrink-0">
             <div>
                 <label for="data-inicio" class="block text-xs font-medium text-gray-700 mb-1">Data de Início</label>
@@ -97,17 +101,22 @@
             </button>
         </form>
 
+        <!-- Resultado (não encolhe) -->
         <div id="resultado-div" class="mt-4 p-3 bg-blue-50 rounded-md text-center hidden flex-shrink-0">
             <p class="text-xs text-gray-600">O prazo final é:</p>
             <p id="data-final" class="text-lg font-bold text-blue-600 mt-0.5"></p>
         </div>
         
+        <!-- Detalhamento: agora flexível para ocupar o espaço restante -->
         <div id="detalhes-div" class="mt-4 hidden flex flex-col flex-grow min-h-0">
             <h3 class="text-sm font-semibold text-gray-700 mb-2 text-center flex-shrink-0">Detalhamento da Contagem</h3>
+            <!-- A lista agora usa o espaço do pai e tem sua própria rolagem se necessário -->
             <div id="detalhes-lista" class="overflow-y-auto p-2 bg-gray-50 rounded-md border text-xs space-y-1">
-                </div>
+                <!-- Conteúdo será gerado dinamicamente -->
+            </div>
         </div>
 
+        <!-- Botão de Exportar (não encolhe) -->
         <div id="export-div" class="mt-4 text-center hidden flex-shrink-0">
             <button id="export-pdf-btn"
                     class="bg-green-600 text-white text-sm font-medium py-1.5 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-500 transition duration-200">
@@ -115,6 +124,7 @@
             </button>
         </div>
 
+        <!-- Mensagem de erro (não encolhe) -->
         <div id="error-div" class="mt-4 p-3 bg-red-100 border border-red-300 text-red-800 text-xs rounded-md text-center hidden flex-shrink-0">
         </div>
     </div>
