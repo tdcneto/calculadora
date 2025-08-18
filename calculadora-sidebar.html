@@ -119,7 +119,7 @@
         </div>
     </div>
 
-   <script>
+    <script>
         // --- CONFIGURAÇÃO ---
         const SHEET_ID = "14FujwpVbZDXsdeDyCd8vOErYiGls1cCphBryRmJ4ND4";
         const SHEET_GID = "0";
@@ -301,7 +301,7 @@
             doc.save(`contagem_prazo_${new Date().toISOString().split('T')[0]}.pdf`);
         }
         
-        // --- LÓGICA DE CARREGAMENTO DOS FERIADOS (MODIFICADA) ---
+        // --- LÓGICA DE CARREGAMENTO DOS FERIADOS (COM CACHE) ---
         document.addEventListener('DOMContentLoaded', () => {
             const statusFeriadosEl = document.getElementById('status-feriados');
 
