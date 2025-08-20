@@ -76,8 +76,8 @@
 
         <!-- === CALCULADORA DO 1º DIA DO PRAZO === -->
         <div id="calculadora-primeiro-dia">
-            <h2 class="text-xl font-bold text-gray-800">Calcular 1º Dia do Prazo</h2>
-            <p class="text-sm text-gray-500 mb-6">Calcule o início do prazo a partir da data de disponibilização/envio (Res. 455/2022 CNJ).</p>
+            <h2 class="text-xl font-bold text-gray-800">Calcular Data da Intimação</h2>
+            <p class="text-sm text-gray-500 mb-6">Calcule a <strong>data da intimação</strong> (dia do começo do prazo) a partir da data de envio (Res. 455/2022 CNJ).</p>
             
             <form id="citacao-form" class="space-y-6">
                 <div>
@@ -86,13 +86,13 @@
                 </div>
 
                 <button type="submit" id="calcular-citacao-btn" class="w-full bg-teal-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition duration-300 ease-in-out flex items-center justify-center">
-                    <span id="btn-citacao-text">Calcular 1º Dia do Prazo</span>
+                    <span id="btn-citacao-text">Calcular Data da Intimação</span>
                     <div id="loader-citacao" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 ml-3 hidden"></div>
                 </button>
             </form>
 
             <div id="resultado-citacao-div" class="mt-8 p-5 bg-gray-50 rounded-lg text-center hidden">
-                <p class="text-gray-600">O 1º dia do prazo é:</p>
+                <p class="text-gray-600">Data da Intimação (começo do prazo):</p>
                 <p id="data-final-citacao" class="text-2xl font-bold text-teal-600 mt-1"></p>
             </div>
             
@@ -155,8 +155,8 @@
                 rows.forEach(row => {
                     const columns = row.split(',');
                     if (columns.length > 1 && columns[0] && columns[1]) {
-                        const nomeFeriado = columns[0].trim();
-                        const dateParts = columns[1].trim().split('/');
+                        const nomeFeriado = columns[0].trim().replace(/"/g, '');
+                        const dateParts = columns[1].trim().replace(/"/g, '').split('/');
                         if (dateParts.length === 3) {
                             const [day, month, year] = dateParts;
                             const dataFormatada = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
@@ -177,15 +177,12 @@
             let diasUteisContados = 0;
             const detalhes = [];
 
-            // Adiciona a informação sobre o dia de início
             detalhes.push({
                 data: new Date(dataInicio.valueOf()),
                 status: 'Início',
-                diaUtilNumero: null,
                 nomeFeriado: 'Dia do começo excluído - art. 224 do CPC'
             });
 
-            // A contagem real começa no dia seguinte
             while (diasUteisContados < diasUteis) {
                 dataAtual.setDate(dataAtual.getDate() + 1);
                 
@@ -217,17 +214,15 @@
             return { dataFinal: dataAtual, detalhes };
         }
 
-        function calcularPrimeiroDiaPrazo(dataEnvio) {
+        function calcularDataIntimacao(dataEnvio) {
             const detalhes = [];
             
             detalhes.push({ data: new Date(dataEnvio.valueOf()), status: 'Info', nomeFeriado: `1. Data de Disponibilização/Envio` });
 
-            // Passo 1 e 2: Contagem de 10 dias corridos
             let dataProvisoria = new Date(dataEnvio.valueOf());
             dataProvisoria.setDate(dataProvisoria.getDate() + 10);
             detalhes.push({ data: new Date(dataProvisoria.valueOf()), status: 'Info', nomeFeriado: `2. Termo Final Provisório (10º dia corrido)` });
             
-            // Passo 3: Verificação e prorrogação se necessário
             let dataFinalCitacao = new Date(dataProvisoria.valueOf());
             while (true) {
                 const diaDaSemana = dataFinalCitacao.getDay();
@@ -237,9 +232,9 @@
 
                 if (!isFimDeSemana && !nomeFeriado) {
                     if (dataFinalCitacao.getTime() === dataProvisoria.getTime()) {
-                         detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: `3. Data consolidada (dia útil).` });
+                         detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: `3. Data da intimação consolidada (dia útil).` });
                     } else {
-                        detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: `3. Data prorrogada (1º dia útil subsequente).` });
+                        detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: `3. Data da intimação prorrogada (1º dia útil subsequente).` });
                     }
                     break; 
                 } else {
@@ -248,24 +243,14 @@
                     dataFinalCitacao.setDate(dataFinalCitacao.getDate() + 1);
                 }
             }
-            // O primeiro dia do prazo é o dia útil *seguinte* à data da intimação
-            let primeiroDiaDoPrazo = new Date(dataFinalCitacao.valueOf());
-            primeiroDiaDoPrazo.setDate(primeiroDiaDoPrazo.getDate() + 1);
             
-            while(!isDiaUtil(primeiroDiaDoPrazo)) {
-                primeiroDiaDoPrazo.setDate(primeiroDiaDoPrazo.getDate() + 1);
-            }
-
-            detalhes.push({ data: new Date(primeiroDiaDoPrazo.valueOf()), status: 'PrimeiroDia', nomeFeriado: `4. O 1º dia do prazo é o dia útil seguinte.` });
-            
-            return { dataFinal: primeiroDiaDoPrazo, detalhes };
+            return { dataFinal: dataFinalCitacao, detalhes };
         }
 
 
         function exportarParaPDF() {
             if (!ultimoResultado) {
-                // Em vez de alert(), podemos usar um modal customizado no futuro. Por enquanto, console.error é seguro.
-                console.error("Nenhum resultado para exportar. Por favor, calcule um prazo primeiro.");
+                console.error("Nenhum resultado para exportar.");
                 return;
             }
 
@@ -276,7 +261,6 @@
             doc.setTextColor(0);
 
             let y = 35;
-            // Cabeçalho dinâmico baseado no tipo de cálculo
             if (ultimoResultado.tipo === 'prazoFinal') {
                 const dataInicio = new Date(`${document.getElementById('data-inicio').value}T00:00:00`);
                 const diasUteis = document.getElementById('dias-uteis').value;
@@ -286,13 +270,13 @@
                 doc.text(`1º Dia do Prazo (Início): ${dataInicio.toLocaleDateString('pt-BR')}`, 14, y);
                 doc.text(`Dias Úteis Contados: ${diasUteis}`, 14, y + 7);
                 doc.text(`Data Final Encontrada: ${ultimoResultado.dataFinal.toLocaleDateString('pt-BR')}`, 14, y + 14);
-            } else if (ultimoResultado.tipo === 'primeiroDia') {
+            } else if (ultimoResultado.tipo === 'dataIntimacao') {
                 const dataEnvio = new Date(`${document.getElementById('data-envio').value}T00:00:00`);
                 doc.setFontSize(18);
-                doc.text("Relatório de Cálculo do 1º Dia do Prazo", 105, 20, { align: "center" });
+                doc.text("Relatório de Cálculo da Data da Intimação", 105, 20, { align: "center" });
                 doc.setFontSize(12);
                 doc.text(`Data de Envio/Disponibilização: ${dataEnvio.toLocaleDateString('pt-BR')}`, 14, y);
-                doc.text(`1º Dia do Prazo Encontrado: ${ultimoResultado.dataFinal.toLocaleDateString('pt-BR')}`, 14, y + 7);
+                doc.text(`Data da Intimação Encontrada: ${ultimoResultado.dataFinal.toLocaleDateString('pt-BR')}`, 14, y + 7);
             }
 
             const drawTableHeader = (yPos) => {
@@ -324,16 +308,16 @@
 
                 if (dia.status === 'Dia útil') {
                     statusText = `Dia útil #${dia.diaUtilNumero}`;
-                } else if (dia.status === 'Feriado' || dia.status === 'Início' || dia.status === 'Info' || dia.status === 'Prorrogação' || dia.status === 'Final' || dia.status === 'PrimeiroDia') {
+                } else if (dia.nomeFeriado) {
                     statusText = dia.nomeFeriado;
-                } else { // Fim de semana
+                } else {
                     statusText = 'Fim de semana';
                 }
 
                 const lines = doc.splitTextToSize(statusText, 65);
                 const blockHeight = lines.length * 5;
 
-                if (y + blockHeight > 280) { // Margem inferior
+                if (y + blockHeight > 280) {
                     doc.addPage();
                     y = 20;
                     y = drawTableHeader(y);
@@ -361,16 +345,20 @@
                         statusClass = 'text-green-700';
                         statusText = `Dia útil #${dia.diaUtilNumero}`;
                         break;
-                    case 'Feriado':
-                    case 'Prorrogação':
+                    case 'Feriado': case 'Prorrogação':
                         statusClass = 'text-red-600';
                         statusText = dia.nomeFeriado || 'Feriado';
                         break;
-                    case 'Início':
-                    case 'Info':
+                    case 'Início': case 'Info':
+                         statusClass = 'text-gray-600';
+                         statusText = dia.nomeFeriado;
+                         break;
                     case 'Final':
-                    case 'PrimeiroDia':
-                         statusClass = 'text-blue-600';
+                         statusClass = 'text-blue-700';
+                         statusText = dia.nomeFeriado;
+                         break;
+                    case 'Explicacao':
+                         statusClass = 'text-purple-700';
                          statusText = dia.nomeFeriado;
                          break;
                     default: // Fim de semana
@@ -382,7 +370,7 @@
                 const nomeDiaSemana = diasDaSemana[dia.data.getDay()];
                 
                 const itemHtml = `
-                    <div class="flex justify-between items-center text-sm p-2 rounded ${dia.status === 'PrimeiroDia' || dia.status === 'Final' ? 'bg-blue-50' : ''}">
+                    <div class="flex justify-between items-center text-sm p-2 rounded ${dia.status === 'Final' ? 'bg-blue-50' : ''}">
                         <span>${diaFormatado} <span class="text-gray-400">- ${nomeDiaSemana}</span></span>
                         <span class="font-semibold text-right ${statusClass}">${statusText}</span>
                     </div>
@@ -404,7 +392,6 @@
                 statusFeriadosEl.classList.replace('text-gray-500', 'text-amber-600');
             }
 
-            // Define a data de hoje como padrão nos inputs
             const today = new Date();
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -414,7 +401,6 @@
             document.getElementById('data-envio').value = todayString;
         });
 
-        // Event Listener para a Calculadora de Prazo Final
         document.getElementById('prazo-form').addEventListener('submit', (event) => {
             event.preventDefault();
             
@@ -426,7 +412,6 @@
             const detalhesLista = document.getElementById('detalhes-lista');
             const exportDiv = document.getElementById('export-div');
 
-            // Limpa resultados anteriores de ambas as calculadoras
             document.getElementById('resultado-citacao-div').classList.add('hidden');
             document.getElementById('detalhes-citacao-div').classList.add('hidden');
             document.getElementById('error-citacao-div').classList.add('hidden');
@@ -449,7 +434,7 @@
                 const dataInicio = new Date(`${dataInicioStr}T00:00:00`);
                 const resultado = calcularPrazoFinal(dataInicio, diasUteis);
                 
-                ultimoResultado = { ...resultado, tipo: 'prazoFinal' }; // Adiciona o tipo para o PDF
+                ultimoResultado = { ...resultado, tipo: 'prazoFinal' };
 
                 document.getElementById('data-final').textContent = resultado.dataFinal.toLocaleDateString('pt-BR');
                 resultadoDiv.classList.remove('hidden');
@@ -467,7 +452,6 @@
             }
         });
 
-        // Event Listener para a Calculadora do 1º Dia do Prazo
         document.getElementById('citacao-form').addEventListener('submit', (event) => {
             event.preventDefault();
 
@@ -479,7 +463,6 @@
             const detalhesLista = document.getElementById('detalhes-citacao-lista');
             const exportDiv = document.getElementById('export-div');
 
-            // Limpa resultados anteriores de ambas as calculadoras
             document.getElementById('resultado-div').classList.add('hidden');
             document.getElementById('detalhes-div').classList.add('hidden');
             document.getElementById('error-div').classList.add('hidden');
@@ -498,9 +481,9 @@
                 }
 
                 const dataEnvio = new Date(`${dataEnvioStr}T00:00:00`);
-                const resultado = calcularPrimeiroDiaPrazo(dataEnvio);
+                const resultado = calcularDataIntimacao(dataEnvio);
 
-                ultimoResultado = { ...resultado, tipo: 'primeiroDia' }; // Adiciona o tipo para o PDF
+                ultimoResultado = { ...resultado, tipo: 'dataIntimacao' };
 
                 document.getElementById('data-final-citacao').textContent = resultado.dataFinal.toLocaleDateString('pt-BR');
                 resultadoDiv.classList.remove('hidden');
@@ -513,7 +496,7 @@
                 errorDiv.textContent = error.message;
                 errorDiv.classList.remove('hidden');
             } finally {
-                btnText.textContent = 'Calcular 1º Dia do Prazo';
+                btnText.textContent = 'Calcular Data da Intimação';
                 loader.classList.add('hidden');
             }
         });
