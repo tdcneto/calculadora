@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Prazos Úteis</title>
+    <title>Calculadora de Prazos Jurídicos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Biblioteca para gerar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
@@ -21,55 +20,90 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        /* Para um scroll mais suave na lista de detalhes */
+        #detalhes-lista, #detalhes-citacao-lista {
+            scrollbar-width: thin;
+            scrollbar-color: #a0aec0 #e2e8f0;
+        }
     </style>
 </head>
-<!-- CORREÇÃO: Removido todo o padding e centralização do body -->
-<body class="bg-gray-100">
+<body class="bg-gray-100 py-8">
 
-    <!-- CORREÇÃO: Adicionado padding superior (pt-4) para dar um respiro no topo -->
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 md:p-8 mx-auto pt-4">
+    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-6 md:p-8 mx-auto">
         <div class="text-center mb-6">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Calculadora de Prazos</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Calculadora de Prazos Jurídicos</h1>
             <p id="status-feriados" class="text-sm text-gray-500 mt-2">Carregando feriados...</p>
         </div>
 
-        <form id="prazo-form" class="space-y-6">
-            <div>
-                <label for="data-inicio" class="block text-sm font-medium text-gray-700 mb-1">Data de Início</label>
-                <input type="date" id="data-inicio" name="data-inicio" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+        <div id="calculadora-prazo-final">
+            <h2 class="text-xl font-bold text-gray-800">Calcular Prazo Final</h2>
+            <p class="text-sm text-gray-500 mb-6">A partir do 1º dia do prazo, calcule a data final.</p>
+            
+            <form id="prazo-form" class="space-y-6">
+                <div>
+                    <label for="data-inicio" class="block text-sm font-medium text-gray-700 mb-1">1º Dia do Prazo (Início da contagem)</label>
+                    <input type="date" id="data-inicio" name="data-inicio" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                </div>
+
+                <div>
+                    <label for="dias-uteis" class="block text-sm font-medium text-gray-700 mb-1">Quantidade de Dias Úteis</p>
+                    <input type="number" id="dias-uteis" name="dias-uteis" min="1" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Ex: 15">
+                </div>
+
+                <button type="submit" id="calcular-btn" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out flex items-center justify-center">
+                    <span id="btn-text">Calcular Prazo Final</span>
+                    <div id="loader" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 ml-3 hidden"></div>
+                </button>
+            </form>
+
+            <div id="resultado-div" class="mt-8 p-5 bg-gray-50 rounded-lg text-center hidden">
+                <p class="text-gray-600">O prazo final é:</p>
+                <p id="data-final" class="text-2xl font-bold text-blue-600 mt-1"></p>
+            </div>
+            
+            <div id="detalhes-div" class="mt-6 hidden">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3 text-center">Detalhamento da Contagem</h3>
+                <div id="detalhes-lista" class="max-h-60 overflow-y-auto p-3 bg-gray-50 rounded-lg border space-y-2"></div>
             </div>
 
-            <div>
-                <label for="dias-uteis" class="block text-sm font-medium text-gray-700 mb-1">Quantidade de Dias Úteis</label>
-                <input type="number" id="dias-uteis" name="dias-uteis" min="1" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Ex: 15">
+            <div id="error-div" class="mt-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg text-center hidden"></div>
+        </div>
+
+        <hr class="my-10 border-gray-200">
+
+        <div id="calculadora-primeiro-dia">
+            <h2 class="text-xl font-bold text-gray-800">Calcular 1º Dia do Prazo</h2>
+            <p class="text-sm text-gray-500 mb-6">Calcule o início do prazo a partir da data de disponibilização/envio (Res. 455/2022 CNJ).</p>
+            
+            <form id="citacao-form" class="space-y-6">
+                <div>
+                    <label for="data-envio" class="block text-sm font-medium text-gray-700 mb-1">Data da Disponibilização/Envio</label>
+                    <input type="date" id="data-envio" name="data-envio" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
+                </div>
+
+                <button type="submit" id="calcular-citacao-btn" class="w-full bg-teal-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition duration-300 ease-in-out flex items-center justify-center">
+                    <span id="btn-citacao-text">Calcular 1º Dia do Prazo</span>
+                    <div id="loader-citacao" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 ml-3 hidden"></div>
+                </button>
+            </form>
+
+            <div id="resultado-citacao-div" class="mt-8 p-5 bg-gray-50 rounded-lg text-center hidden">
+                <p class="text-gray-600">O 1º dia do prazo é:</p>
+                <p id="data-final-citacao" class="text-2xl font-bold text-teal-600 mt-1"></p>
             </div>
-
-            <button type="submit" id="calcular-btn" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out flex items-center justify-center">
-                <span id="btn-text">Calcular Prazo</span>
-                <div id="loader" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 ml-3 hidden"></div>
-            </button>
-        </form>
-
-        <div id="resultado-div" class="mt-8 p-5 bg-gray-50 rounded-lg text-center hidden">
-            <p class="text-gray-600">O prazo final é:</p>
-            <p id="data-final" class="text-2xl font-bold text-blue-600 mt-1"></p>
+            
+            <div id="detalhes-citacao-div" class="mt-6 hidden">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3 text-center">Detalhamento do Cálculo</h3>
+                <div id="detalhes-citacao-lista" class="max-h-60 overflow-y-auto p-3 bg-gray-50 rounded-lg border space-y-2"></div>
+            </div>
+            
+            <div id="error-citacao-div" class="mt-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg text-center hidden"></div>
         </div>
         
-        <div id="detalhes-div" class="mt-6 hidden">
-            <h3 class="text-lg font-semibold text-gray-700 mb-3 text-center">Detalhamento da Contagem</h3>
-            <div id="detalhes-lista" class="max-h-60 overflow-y-auto p-3 bg-gray-50 rounded-lg border space-y-2">
-                <!-- Conteúdo será gerado dinamicamente -->
-            </div>
-        </div>
-
-        <!-- Botão de Exportar para PDF -->
-        <div id="export-div" class="mt-6 text-center hidden">
+        <div id="export-div" class="mt-10 text-center hidden">
             <button id="export-pdf-btn" class="bg-green-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
-                Exportar para PDF
+                Exportar Resultado para PDF
             </button>
-        </div>
-
-        <div id="error-div" class="mt-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg text-center hidden">
         </div>
 
     </div>
@@ -80,18 +114,31 @@
         const SHEET_GID = "0";
         const googleSheetUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
 
+        // LISTA DE FERIADOS UNIFICADA E ATUALIZADA (FALLBACK)
         const feriadosFallback = {
-            "2025-01-01": "Recesso Judiciário", "2025-01-02": "Recesso Judiciário", "2025-01-03": "Recesso Judiciário", "2025-01-04": "Recesso Judiciário", "2025-01-05": "Recesso Judiciário", "2025-01-06": "Recesso Judiciário", "2025-01-07": "Recesso Judiciário", "2025-01-08": "Suspensão do Prazo", "2025-01-09": "Suspensão do Prazo", "2025-01-10": "Suspensão do Prazo", "2025-01-11": "Suspensão do Prazo", "2025-01-12": "Suspensão do Prazo", "2025-01-13": "Suspensão do Prazo", "2025-01-14": "Suspensão do Prazo", "2025-01-15": "Suspensão do Prazo", "2025-01-16": "Suspensão do Prazo", "2025-01-17": "Suspensão do Prazo", "2025-01-18": "Suspensão do Prazo", "2025-01-19": "Suspensão do Prazo", "2025-01-20": "Suspensão do Prazo", "2025-03-03": "Carnaval", "2025-03-04": "Carnaval", "2025-03-05": "Carnaval", "2025-04-17": "Quinta-Feira Santa", "2025-04-18": "Paixão de Cristo", "2025-04-21": "Tiradentes", "2025-05-01": "Dia do Trabalhador", "2025-05-02": "Ponto Facultativo", "2025-05-19": "Dia do Defensor", "2025-06-19": "Corpus Christi", "2025-06-20": "Ponto Facultativo", "2025-06-27": "Festival de Parintins", "2025-07-04": "Instalação do Jud.", "2025-08-04": "Semana de Atenção à Pessoa", "2025-08-05": "Semana de Atenção à Pessoa", "2025-08-06": "Semana de Atenção à Pessoa", "2025-08-07": "Semana de Atenção à Pessoa", "2025-08-08": "Semana de Atenção à Pessoa", "2025-08-11": "Dia do Advogado", "2025-09-05": "Elevação do Am", "2025-09-07": "Independência", "2025-10-12": "N. S. Aparecida", "2025-10-24": "Elevação de MAO", "2025-10-28": "Dia do Servidor", "2025-11-02": "Finados", "2025-11-15": "Proclamação da República", "2025-11-20": "Consciência Negra", "2025-11-21": "Ponto Facultativo", "2025-12-08": "N. S. da Conceição", "2025-12-14": "Dia do MP", "2025-12-20": "Recesso", "2025-12-21": "Recesso", "2025-12-22": "Recesso", "2025-12-23": "Recesso", "2025-12-24": "Recesso", "2025-12-25": "Recesso", "2025-12-26": "Recesso", "2025-12-27": "Recesso", "2025-12-28": "Recesso", "2025-12-29": "Recesso", "2025-12-30": "Recesso", "2025-12-31": "Recesso"
+             // 2024
+            "2024-08-05": "Semana de Atenção à Pessoa Idosa", "2024-08-06": "Semana de Atenção à Pessoa Idosa", "2024-08-07": "Semana de Atenção à Pessoa Idosa", "2024-08-08": "Semana de Atenção à Pessoa Idosa", "2024-08-09": "Semana de Atenção à Pessoa Idosa", "2024-08-11": "Dia do Advogado", "2024-09-05": "Elevação do Amazonas", "2024-09-06": "Ponto Facultativo", "2024-09-07": "Independência", "2024-10-12": "N. S. Aparecida", "2024-10-24": "Elevação de MAO", "2024-10-25": "Ponto Facultativo", "2024-10-28": "Dia do Servidor", "2024-11-02": "Finados", "2024-11-04": "Semana Nacional de Conciliação", "2024-11-05": "Semana Nacional de Conciliação", "2024-11-06": "Semana Nacional de Conciliação", "2024-11-07": "Semana Nacional de Conciliação", "2024-11-08": "Semana Nacional de Conciliação", "2024-11-15": "Proclamação da República", "2024-11-19": "Eleição da OAB", "2024-11-20": "Consciência Negra", "2024-12-08": "N. S. da Conceição / Dia da Justiça", "2024-12-14": "Dia do Ministério Público", "2024-12-20": "Recesso Forense", "2024-12-21": "Recesso Forense", "2024-12-22": "Recesso Forense", "2024-12-23": "Recesso Forense", "2024-12-24": "Recesso Forense", "2024-12-25": "Recesso Forense", "2024-12-26": "Recesso Forense", "2024-12-27": "Recesso Forense", "2024-12-28": "Recesso Forense", "2024-12-29": "Recesso Forense", "2024-12-30": "Recesso Forense", "2024-12-31": "Recesso Forense",
+            // 2025
+            "2025-01-01": "Recesso Forense", "2025-01-02": "Recesso Forense", "2025-01-03": "Recesso Forense", "2025-01-04": "Recesso Forense", "2025-01-05": "Recesso Forense", "2025-01-06": "Recesso Forense", "2025-01-07": "Prazo Suspenso - art. 220 CPC", "2025-01-08": "Prazo Suspenso - art. 220 CPC", "2025-01-09": "Prazo Suspenso - art. 220 CPC", "2025-01-10": "Prazo Suspenso - art. 220 CPC", "2025-01-11": "Prazo Suspenso - art. 220 CPC", "2025-01-12": "Prazo Suspenso - art. 220 CPC", "2025-01-13": "Prazo Suspenso - art. 220 CPC", "2025-01-14": "Prazo Suspenso - art. 220 CPC", "2025-01-15": "Prazo Suspenso - art. 220 CPC", "2025-01-16": "Prazo Suspenso - art. 220 CPC", "2025-01-17": "Prazo Suspenso - art. 220 CPC", "2025-01-18": "Prazo Suspenso - art. 220 CPC", "2025-01-19": "Prazo Suspenso - art. 220 CPC", "2025-01-20": "Prazo Suspenso - art. 220 CPC", "2025-03-03": "Carnaval", "2025-03-04": "Carnaval", "2025-03-05": "Carnaval", "2025-04-17": "Quinta-Feira Santa", "2025-04-18": "Paixão de Cristo", "2025-04-21": "Tiradentes", "2025-05-01": "Dia do Trabalhador", "2025-05-02": "Ponto Facultativo", "2025-05-19": "Dia do Defensor", "2025-06-19": "Corpus Christi", "2025-06-20": "Ponto Facultativo", "2025-06-27": "Festival de Parintins", "2025-07-04": "Instalação do Judiciário", "2025-08-04": "Semana de Atenção à Pessoa Idosa", "2025-08-05": "Semana de Atenção à Pessoa Idosa", "2025-08-06": "Semana de Atenção à Pessoa Idosa", "2025-08-07": "Semana de Atenção à Pessoa Idosa", "2025-08-08": "Semana de Atenção à Pessoa Idosa", "2025-08-11": "Dia do Advogado", "2025-09-05": "Elevação do AM", "2025-09-07": "Independência", "2025-10-12": "N. S. Aparecida", "2025-10-24": "Elevação de Manaus", "2025-10-28": "Dia do Servidor", "2025-11-02": "Finados", "2025-11-15": "Proclamação da República", "2025-11-20": "Consciência Negra", "2025-11-21": "Ponto Facultativo", "2025-12-08": "N. S. da Conceição", "2025-12-14": "Dia do MP", "2025-12-20": "Recesso Forense", "2025-12-21": "Recesso Forense", "2025-12-22": "Recesso Forense", "2025-12-23": "Recesso Forense", "2025-12-24": "Recesso Forense", "2025-12-25": "Recesso Forense", "2025-12-26": "Recesso Forense", "2025-12-27": "Recesso Forense", "2025-12-28": "Recesso Forense", "2025-12-29": "Recesso Forense", "2025-12-30": "Recesso Forense", "2025-12-31": "Recesso Forense",
+            // 2026
+            "2026-01-01": "Recesso Forense", "2026-01-02": "Recesso Forense", "2026-01-03": "Recesso Forense", "2026-01-04": "Recesso Forense", "2026-01-05": "Recesso Forense", "2026-01-06": "Recesso Forense", "2026-01-07": "Prazo Suspenso - art. 220 CPC", "2026-01-08": "Prazo Suspenso - art. 220 CPC", "2026-01-09": "Prazo Suspenso - art. 220 CPC", "2026-01-10": "Prazo Suspenso - art. 220 CPC", "2026-01-11": "Prazo Suspenso - art. 220 CPC", "2026-01-12": "Prazo Suspenso - art. 220 CPC", "2026-01-13": "Prazo Suspenso - art. 220 CPC", "2026-01-14": "Prazo Suspenso - art. 220 CPC", "2026-01-15": "Prazo Suspenso - art. 220 CPC", "2026-01-16": "Prazo Suspenso - art. 220 CPC", "2026-01-17": "Prazo Suspenso - art. 220 CPC", "2026-01-18": "Prazo Suspenso - art. 220 CPC", "2026-01-19": "Prazo Suspenso - art. 220 CPC", "2026-01-20": "Prazo Suspenso - art. 220 CPC"
         };
         
         let listaDeFeriados = {};
         let ultimoResultado = null;
         const diasDaSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 
+        function isDiaUtil(data) {
+            const diaDaSemana = data.getDay();
+            const dataFormatada = data.toISOString().split('T')[0];
+            const isFimDeSemana = diaDaSemana === 0 || diaDaSemana === 6;
+            const isFeriado = !!listaDeFeriados[dataFormatada];
+            return !isFimDeSemana && !isFeriado;
+        }
+
         async function buscarFeriadosOnline(url) {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000);
-
             try {
                 const response = await fetch(url, { signal: controller.signal });
                 clearTimeout(timeoutId);
@@ -100,7 +147,6 @@
                 const csvData = await response.text();
                 const feriados = {};
                 const rows = csvData.split('\n').slice(1);
-
                 rows.forEach(row => {
                     const columns = row.split(',');
                     if (columns.length > 1 && columns[0] && columns[1]) {
@@ -116,24 +162,32 @@
                 return feriados;
             } catch (error) {
                 clearTimeout(timeoutId);
-                if (error.name === 'AbortError') console.error("Falha ao buscar feriados online: A requisição demorou muito (timeout).");
-                else console.error("Falha ao buscar feriados online:", error);
+                console.error("Falha ao buscar feriados online:", error);
                 return null;
             }
         }
 
-        function calcularPrazoUtil(dataInicio, diasUteis, feriados) {
+        function calcularPrazoFinal(dataInicio, diasUteis) {
             let dataAtual = new Date(dataInicio.valueOf());
             let diasUteisContados = 0;
             const detalhes = [];
 
+            // Adiciona a informação sobre o dia de início
+            detalhes.push({
+                data: new Date(dataInicio.valueOf()),
+                status: 'Início',
+                diaUtilNumero: null,
+                nomeFeriado: 'Dia do começo excluído - art. 224 do CPC'
+            });
+
+            // A contagem real começa no dia seguinte
             while (diasUteisContados < diasUteis) {
                 dataAtual.setDate(dataAtual.getDate() + 1);
                 
                 const diaDaSemana = dataAtual.getDay();
                 const dataFormatada = dataAtual.toISOString().split('T')[0];
                 const isFimDeSemana = diaDaSemana === 0 || diaDaSemana === 6;
-                const nomeFeriado = feriados[dataFormatada];
+                const nomeFeriado = listaDeFeriados[dataFormatada];
 
                 let status = '';
                 let diaUtilNumero = null;
@@ -158,6 +212,51 @@
             return { dataFinal: dataAtual, detalhes };
         }
 
+        function calcularPrimeiroDiaPrazo(dataEnvio) {
+            const detalhes = [];
+            
+            detalhes.push({ data: new Date(dataEnvio.valueOf()), status: 'Info', nomeFeriado: `1. Data de Disponibilização/Envio` });
+
+            // Passo 1 e 2: Contagem de 10 dias corridos
+            let dataProvisoria = new Date(dataEnvio.valueOf());
+            dataProvisoria.setDate(dataProvisoria.getDate() + 10);
+            detalhes.push({ data: new Date(dataProvisoria.valueOf()), status: 'Info', nomeFeriado: `2. Termo Final Provisório (10º dia corrido)` });
+            
+            // Passo 3: Verificação e prorrogação se necessário
+            let dataFinalCitacao = new Date(dataProvisoria.valueOf());
+            while (true) {
+                const diaDaSemana = dataFinalCitacao.getDay();
+                const dataFormatada = dataFinalCitacao.toISOString().split('T')[0];
+                const isFimDeSemana = diaDaSemana === 0 || diaDaSemana === 6;
+                const nomeFeriado = listaDeFeriados[dataFormatada];
+
+                if (!isFimDeSemana && !nomeFeriado) {
+                    if (dataFinalCitacao.getTime() === dataProvisoria.getTime()) {
+                         detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: `3. Data consolidada (dia útil).` });
+                    } else {
+                        detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: `3. Data prorrogada (1º dia útil subsequente).` });
+                    }
+                    break; 
+                } else {
+                    let motivo = isFimDeSemana ? `Fim de semana (${diasDaSemana[diaDaSemana]})` : `Feriado (${nomeFeriado})`;
+                    detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Prorrogação', nomeFeriado: `Não é útil (${motivo}). Verificando próximo dia...` });
+                    dataFinalCitacao.setDate(dataFinalCitacao.getDate() + 1);
+                }
+            }
+            // O primeiro dia do prazo é o dia útil *seguinte* à data da intimação
+            let primeiroDiaDoPrazo = new Date(dataFinalCitacao.valueOf());
+            primeiroDiaDoPrazo.setDate(primeiroDiaDoPrazo.getDate() + 1);
+            
+            while(!isDiaUtil(primeiroDiaDoPrazo)) {
+                primeiroDiaDoPrazo.setDate(primeiroDiaDoPrazo.getDate() + 1);
+            }
+
+            detalhes.push({ data: new Date(primeiroDiaDoPrazo.valueOf()), status: 'PrimeiroDia', nomeFeriado: `4. O 1º dia do prazo é o dia útil seguinte.` });
+            
+            return { dataFinal: primeiroDiaDoPrazo, detalhes };
+        }
+
+
         function exportarParaPDF() {
             if (!ultimoResultado) {
                 alert("Nenhum resultado para exportar. Por favor, calcule um prazo primeiro.");
@@ -167,34 +266,48 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
-            const dataInicio = new Date(`${document.getElementById('data-inicio').value}T00:00:00`);
-            const diasUteis = document.getElementById('dias-uteis').value;
-
-            doc.setFontSize(18);
-            doc.text("Relatório de Contagem de Prazo", 105, 20, { align: "center" });
             doc.setFontSize(12);
-            doc.text(`Data de Início: ${dataInicio.toLocaleDateString('pt-BR')}`, 14, 35);
-            doc.text(`Dias Úteis Contados: ${diasUteis}`, 14, 42);
-            doc.text(`Data Final Encontrada: ${ultimoResultado.dataFinal.toLocaleDateString('pt-BR')}`, 14, 49);
-            
+            doc.setTextColor(0);
+
+            let y = 35;
+            // Cabeçalho dinâmico baseado no tipo de cálculo
+            if (ultimoResultado.tipo === 'prazoFinal') {
+                const dataInicio = new Date(`${document.getElementById('data-inicio').value}T00:00:00`);
+                const diasUteis = document.getElementById('dias-uteis').value;
+                doc.setFontSize(18);
+                doc.text("Relatório de Contagem de Prazo Final", 105, 20, { align: "center" });
+                doc.setFontSize(12);
+                doc.text(`1º Dia do Prazo (Início): ${dataInicio.toLocaleDateString('pt-BR')}`, 14, y);
+                doc.text(`Dias Úteis Contados: ${diasUteis}`, 14, y + 7);
+                doc.text(`Data Final Encontrada: ${ultimoResultado.dataFinal.toLocaleDateString('pt-BR')}`, 14, y + 14);
+            } else if (ultimoResultado.tipo === 'primeiroDia') {
+                const dataEnvio = new Date(`${document.getElementById('data-envio').value}T00:00:00`);
+                doc.setFontSize(18);
+                doc.text("Relatório de Cálculo do 1º Dia do Prazo", 105, 20, { align: "center" });
+                doc.setFontSize(12);
+                doc.text(`Data de Envio/Disponibilização: ${dataEnvio.toLocaleDateString('pt-BR')}`, 14, y);
+                doc.text(`1º Dia do Prazo Encontrado: ${ultimoResultado.dataFinal.toLocaleDateString('pt-BR')}`, 14, y + 7);
+            }
+
             const drawTableHeader = (yPos) => {
                 doc.setFontSize(10);
                 doc.setTextColor(100);
                 doc.text("Data", 14, yPos);
                 doc.text("Dia da Semana", 50, yPos);
-                doc.text("Status", 130, yPos);
+                doc.text("Status / Detalhe", 130, yPos);
                 let newY = yPos + 3;
                 doc.setLineWidth(0.2);
                 doc.line(14, newY, 196, newY);
                 return newY + 5;
             };
 
+            y += 30;
             doc.setFontSize(14);
-            doc.text("Detalhamento da Contagem", 14, 65);
+            doc.text("Detalhamento do Cálculo", 14, y);
             doc.setLineWidth(0.5);
-            doc.line(14, 67, 196, 67);
+            doc.line(14, y + 2, 196, y + 2);
 
-            let y = 75;
+            y += 10;
             y = drawTableHeader(y);
             doc.setTextColor(0);
 
@@ -205,16 +318,16 @@
 
                 if (dia.status === 'Dia útil') {
                     statusText = `Dia útil #${dia.diaUtilNumero}`;
-                } else if (dia.status === 'Feriado') {
+                } else if (dia.status === 'Feriado' || dia.status === 'Início' || dia.status === 'Info' || dia.status === 'Prorrogação' || dia.status === 'Final' || dia.status === 'PrimeiroDia') {
                     statusText = dia.nomeFeriado;
-                } else {
+                } else { // Fim de semana
                     statusText = 'Fim de semana';
                 }
 
                 const lines = doc.splitTextToSize(statusText, 65);
                 const blockHeight = lines.length * 5;
 
-                if (y + blockHeight > 280) {
+                if (y + blockHeight > 280) { // Margem inferior
                     doc.addPage();
                     y = 20;
                     y = drawTableHeader(y);
@@ -228,7 +341,48 @@
                 y += blockHeight + 2;
             });
 
-            doc.save(`contagem_prazo_${new Date().toISOString().split('T')[0]}.pdf`);
+            doc.save(`calculo_prazo_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        function renderizarDetalhes(listaEl, detalhes) {
+            listaEl.innerHTML = '';
+            detalhes.forEach(dia => {
+                let statusClass = '';
+                let statusText = '';
+
+                switch(dia.status) {
+                    case 'Dia útil':
+                        statusClass = 'text-green-700';
+                        statusText = `Dia útil #${dia.diaUtilNumero}`;
+                        break;
+                    case 'Feriado':
+                    case 'Prorrogação':
+                        statusClass = 'text-red-600';
+                        statusText = dia.nomeFeriado || 'Feriado';
+                        break;
+                    case 'Início':
+                    case 'Info':
+                    case 'Final':
+                    case 'PrimeiroDia':
+                         statusClass = 'text-blue-600';
+                         statusText = dia.nomeFeriado;
+                         break;
+                    default: // Fim de semana
+                        statusClass = 'text-gray-500';
+                        statusText = 'Fim de semana';
+                }
+
+                const diaFormatado = dia.data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const nomeDiaSemana = diasDaSemana[dia.data.getDay()];
+                
+                const itemHtml = `
+                    <div class="flex justify-between items-center text-sm p-2 rounded ${dia.status === 'PrimeiroDia' || dia.status === 'Final' ? 'bg-blue-50' : ''}">
+                        <span>${diaFormatado} <span class="text-gray-400">- ${nomeDiaSemana}</span></span>
+                        <span class="font-semibold text-right ${statusClass}">${statusText}</span>
+                    </div>
+                `;
+                listaEl.innerHTML += itemHtml;
+            });
         }
         
         document.addEventListener('DOMContentLoaded', async () => {
@@ -245,6 +399,7 @@
             }
         });
 
+        // Event Listener para a Calculadora de Prazo Final
         document.getElementById('prazo-form').addEventListener('submit', (event) => {
             event.preventDefault();
             
@@ -256,11 +411,15 @@
             const detalhesLista = document.getElementById('detalhes-lista');
             const exportDiv = document.getElementById('export-div');
 
+            // Limpa resultados anteriores de ambas as calculadoras
+            document.getElementById('resultado-citacao-div').classList.add('hidden');
+            document.getElementById('detalhes-citacao-div').classList.add('hidden');
+            document.getElementById('error-citacao-div').classList.add('hidden');
+
             resultadoDiv.classList.add('hidden');
             errorDiv.classList.add('hidden');
             detalhesDiv.classList.add('hidden');
             exportDiv.classList.add('hidden');
-            detalhesLista.innerHTML = '';
             btnText.textContent = 'Calculando...';
             loader.classList.remove('hidden');
 
@@ -273,37 +432,14 @@
                 }
                 
                 const dataInicio = new Date(`${dataInicioStr}T00:00:00`);
-                const resultado = calcularPrazoUtil(dataInicio, diasUteis, listaDeFeriados);
-                ultimoResultado = resultado;
+                const resultado = calcularPrazoFinal(dataInicio, diasUteis);
+                
+                ultimoResultado = { ...resultado, tipo: 'prazoFinal' }; // Adiciona o tipo para o PDF
 
                 document.getElementById('data-final').textContent = resultado.dataFinal.toLocaleDateString('pt-BR');
                 resultadoDiv.classList.remove('hidden');
 
-                resultado.detalhes.forEach(dia => {
-                    let statusClass = '';
-                    let statusText = dia.status;
-
-                    if (dia.status === 'Dia útil') {
-                        statusClass = 'text-green-700';
-                        statusText = `Dia útil #${dia.diaUtilNumero}`;
-                    } else if (dia.status === 'Feriado') {
-                        statusClass = 'text-red-600';
-                        statusText = dia.nomeFeriado;
-                    } else {
-                        statusClass = 'text-gray-500';
-                    }
-
-                    const diaFormatado = dia.data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                    const nomeDiaSemana = diasDaSemana[dia.data.getDay()];
-                    
-                    const itemHtml = `
-                        <div class="flex justify-between items-center text-sm p-2 rounded">
-                            <span>${diaFormatado} <span class="text-gray-400">- ${nomeDiaSemana}</span></span>
-                            <span class="font-semibold ${statusClass}">${statusText}</span>
-                        </div>
-                    `;
-                    detalhesLista.innerHTML += itemHtml;
-                });
+                renderizarDetalhes(detalhesLista, resultado.detalhes);
                 detalhesDiv.classList.remove('hidden');
                 exportDiv.classList.remove('hidden');
 
@@ -311,7 +447,58 @@
                 errorDiv.textContent = error.message;
                 errorDiv.classList.remove('hidden');
             } finally {
-                btnText.textContent = 'Calcular Prazo';
+                btnText.textContent = 'Calcular Prazo Final';
+                loader.classList.add('hidden');
+            }
+        });
+
+        // Event Listener para a Calculadora do 1º Dia do Prazo
+        document.getElementById('citacao-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const btnText = document.getElementById('btn-citacao-text');
+            const loader = document.getElementById('loader-citacao');
+            const resultadoDiv = document.getElementById('resultado-citacao-div');
+            const errorDiv = document.getElementById('error-citacao-div');
+            const detalhesDiv = document.getElementById('detalhes-citacao-div');
+            const detalhesLista = document.getElementById('detalhes-citacao-lista');
+            const exportDiv = document.getElementById('export-div');
+
+            // Limpa resultados anteriores de ambas as calculadoras
+            document.getElementById('resultado-div').classList.add('hidden');
+            document.getElementById('detalhes-div').classList.add('hidden');
+            document.getElementById('error-div').classList.add('hidden');
+
+            resultadoDiv.classList.add('hidden');
+            errorDiv.classList.add('hidden');
+            detalhesDiv.classList.add('hidden');
+            exportDiv.classList.add('hidden');
+            btnText.textContent = 'Calculando...';
+            loader.classList.remove('hidden');
+
+            try {
+                const dataEnvioStr = document.getElementById('data-envio').value;
+                if (!dataEnvioStr) {
+                    throw new Error("Por favor, preencha a data de disponibilização/envio.");
+                }
+
+                const dataEnvio = new Date(`${dataEnvioStr}T00:00:00`);
+                const resultado = calcularPrimeiroDiaPrazo(dataEnvio);
+
+                ultimoResultado = { ...resultado, tipo: 'primeiroDia' }; // Adiciona o tipo para o PDF
+
+                document.getElementById('data-final-citacao').textContent = resultado.dataFinal.toLocaleDateString('pt-BR');
+                resultadoDiv.classList.remove('hidden');
+
+                renderizarDetalhes(detalhesLista, resultado.detalhes);
+                detalhesDiv.classList.remove('hidden');
+                exportDiv.classList.remove('hidden');
+
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                btnText.textContent = 'Calcular 1º Dia do Prazo';
                 loader.classList.add('hidden');
             }
         });
