@@ -196,7 +196,7 @@ Dia do Advogado,11/08/2025
 "Independência do Brasil",07/09/2025
 "N. S. Aparecida",12/10/2025
 "Aniversário de Manaus",24/10/2025
-Dia do Servidor,28/10/2025
+Dia do Servidor,27/10/2025
 Finados,02/11/2025
 "Proclamação da República",15/11/2025
 "Consciência Negra",20/11/2025
@@ -333,14 +333,17 @@ Recesso Forense,31/12/2025
 
                 if (!isFimDeSemana && !nomeFeriado) {
                     if (dataFinalCitacao.getTime() === dataProvisoria.getTime()) {
-                         detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: `3. Data da intimação consolidada (dia útil).` });
+                         detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: `3. Data da intimação (dia útil)` });
                     } else {
-                        detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: `3. Data da intimação prorrogada (1º dia útil subsequente).` });
+                        detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: `3. Data da intimação (prorrogada)` });
                     }
                     break; 
                 } else {
-                    let motivo = isFimDeSemana ? `Fim de semana (${diasDaSemana[diaDaSemana]})` : `Feriado (${nomeFeriado})`;
-                    detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Prorrogação', nomeFeriado: `Não é útil (${motivo}). Verificando próximo dia...` });
+                    detalhes.push({ 
+                        data: new Date(dataFinalCitacao.valueOf()), 
+                        status: isFimDeSemana ? 'Fim de semana' : 'Feriado',
+                        nomeFeriado: nomeFeriado || null
+                    });
                     dataFinalCitacao.setDate(dataFinalCitacao.getDate() + 1);
                 }
             }
@@ -446,7 +449,7 @@ Recesso Forense,31/12/2025
                         statusClass = 'text-green-700';
                         statusText = `Dia útil #${dia.diaUtilNumero}`;
                         break;
-                    case 'Feriado': case 'Prorrogação':
+                    case 'Feriado':
                         statusClass = 'text-red-600';
                         statusText = dia.nomeFeriado || 'Feriado';
                         break;
@@ -456,10 +459,6 @@ Recesso Forense,31/12/2025
                          break;
                     case 'Final':
                          statusClass = 'text-blue-700';
-                         statusText = dia.nomeFeriado;
-                         break;
-                    case 'Explicacao':
-                         statusClass = 'text-purple-700';
                          statusText = dia.nomeFeriado;
                          break;
                     default: // Fim de semana
@@ -486,7 +485,7 @@ Recesso Forense,31/12/2025
             // Carrega e processa os feriados da variável CSV
             listaDeFeriados = parseFeriadosCSV(feriadosCSV);
             
-            statusFeriadosEl.textContent = 'Feriados carregados da lista local.';
+            statusFeriadosEl.textContent = 'Feriados atualizados até Portaria 2602/25 TJAM - 20/08/2025.';
             statusFeriadosEl.classList.replace('text-gray-500', 'text-green-600');
 
             const today = new Date();
