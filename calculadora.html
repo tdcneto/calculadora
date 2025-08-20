@@ -115,23 +115,155 @@
 
     <script>
         // --- CONFIGURAÇÃO ---
-        const SHEET_ID = "14FujwpVbZDXsdeDyCd8vOErYiGls1cCphBryRmJ4ND4";
-        const SHEET_GID = "0";
-        const googleSheetUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
-
-        // LISTA DE FERIADOS UNIFICADA E ATUALIZADA (FALLBACK)
-        const feriadosFallback = {
-             // 2024
-            "2024-08-05": "Semana de Atenção à Pessoa Idosa", "2024-08-06": "Semana de Atenção à Pessoa Idosa", "2024-08-07": "Semana de Atenção à Pessoa Idosa", "2024-08-08": "Semana de Atenção à Pessoa Idosa", "2024-08-09": "Semana de Atenção à Pessoa Idosa", "2024-08-11": "Dia do Advogado", "2024-09-05": "Elevação do Amazonas", "2024-09-06": "Ponto Facultativo", "2024-09-07": "Independência", "2024-10-12": "N. S. Aparecida", "2024-10-24": "Elevação de MAO", "2024-10-25": "Ponto Facultativo", "2024-10-28": "Dia do Servidor", "2024-11-02": "Finados", "2024-11-04": "Semana Nacional de Conciliação", "2024-11-05": "Semana Nacional de Conciliação", "2024-11-06": "Semana Nacional de Conciliação", "2024-11-07": "Semana Nacional de Conciliação", "2024-11-08": "Semana Nacional de Conciliação", "2024-11-15": "Proclamação da República", "2024-11-19": "Eleição da OAB", "2024-11-20": "Consciência Negra", "2024-12-08": "N. S. da Conceição / Dia da Justiça", "2024-12-14": "Dia do Ministério Público", "2024-12-20": "Recesso Forense", "2024-12-21": "Recesso Forense", "2024-12-22": "Recesso Forense", "2024-12-23": "Recesso Forense", "2024-12-24": "Recesso Forense", "2024-12-25": "Recesso Forense", "2024-12-26": "Recesso Forense", "2024-12-27": "Recesso Forense", "2024-12-28": "Recesso Forense", "2024-12-29": "Recesso Forense", "2024-12-30": "Recesso Forense", "2024-12-31": "Recesso Forense",
-            // 2025
-            "2025-01-01": "Recesso Forense", "2025-01-02": "Recesso Forense", "2025-01-03": "Recesso Forense", "2025-01-04": "Recesso Forense", "2025-01-05": "Recesso Forense", "2025-01-06": "Recesso Forense", "2025-01-07": "Prazo Suspenso - art. 220 CPC", "2025-01-08": "Prazo Suspenso - art. 220 CPC", "2025-01-09": "Prazo Suspenso - art. 220 CPC", "2025-01-10": "Prazo Suspenso - art. 220 CPC", "2025-01-11": "Prazo Suspenso - art. 220 CPC", "2025-01-12": "Prazo Suspenso - art. 220 CPC", "2025-01-13": "Prazo Suspenso - art. 220 CPC", "2025-01-14": "Prazo Suspenso - art. 220 CPC", "2025-01-15": "Prazo Suspenso - art. 220 CPC", "2025-01-16": "Prazo Suspenso - art. 220 CPC", "2025-01-17": "Prazo Suspenso - art. 220 CPC", "2025-01-18": "Prazo Suspenso - art. 220 CPC", "2025-01-19": "Prazo Suspenso - art. 220 CPC", "2025-01-20": "Prazo Suspenso - art. 220 CPC", "2025-03-03": "Carnaval", "2025-03-04": "Carnaval", "2025-03-05": "Carnaval", "2025-04-17": "Quinta-Feira Santa", "2025-04-18": "Paixão de Cristo", "2025-04-21": "Tiradentes", "2025-05-01": "Dia do Trabalhador", "2025-05-02": "Ponto Facultativo", "2025-05-19": "Dia do Defensor", "2025-06-19": "Corpus Christi", "2025-06-20": "Ponto Facultativo", "2025-06-27": "Festival de Parintins", "2025-07-04": "Instalação do Judiciário", "2025-08-04": "Semana de Atenção à Pessoa Idosa", "2025-08-05": "Semana de Atenção à Pessoa Idosa", "2025-08-06": "Semana de Atenção à Pessoa Idosa", "2025-08-07": "Semana de Atenção à Pessoa Idosa", "2025-08-08": "Semana de Atenção à Pessoa Idosa", "2025-08-11": "Dia do Advogado", "2025-09-05": "Elevação do AM", "2025-09-07": "Independência", "2025-10-12": "N. S. Aparecida", "2025-10-24": "Elevação de Manaus", "2025-10-28": "Dia do Servidor", "2025-11-02": "Finados", "2025-11-15": "Proclamação da República", "2025-11-20": "Consciência Negra", "2025-11-21": "Ponto Facultativo", "2025-12-08": "N. S. da Conceição", "2025-12-14": "Dia do MP", "2025-12-20": "Recesso Forense", "2025-12-21": "Recesso Forense", "2025-12-22": "Recesso Forense", "2025-12-23": "Recesso Forense", "2025-12-24": "Recesso Forense", "2025-12-25": "Recesso Forense", "2025-12-26": "Recesso Forense", "2025-12-27": "Recesso Forense", "2025-12-28": "Recesso Forense", "2025-12-29": "Recesso Forense", "2025-12-30": "Recesso Forense", "2025-12-31": "Recesso Forense",
-            // 2026
-            "2026-01-01": "Recesso Forense", "2026-01-02": "Recesso Forense", "2026-01-03": "Recesso Forense", "2026-01-04": "Recesso Forense", "2026-01-05": "Recesso Forense", "2026-01-06": "Recesso Forense", "2026-01-07": "Prazo Suspenso - art. 220 CPC", "2026-01-08": "Prazo Suspenso - art. 220 CPC", "2026-01-09": "Prazo Suspenso - art. 220 CPC", "2026-01-10": "Prazo Suspenso - art. 220 CPC", "2026-01-11": "Prazo Suspenso - art. 220 CPC", "2026-01-12": "Prazo Suspenso - art. 220 CPC", "2026-01-13": "Prazo Suspenso - art. 220 CPC", "2026-01-14": "Prazo Suspenso - art. 220 CPC", "2026-01-15": "Prazo Suspenso - art. 220 CPC", "2026-01-16": "Prazo Suspenso - art. 220 CPC", "2026-01-17": "Prazo Suspenso - art. 220 CPC", "2026-01-18": "Prazo Suspenso - art. 220 CPC", "2026-01-19": "Prazo Suspenso - art. 220 CPC", "2026-01-20": "Prazo Suspenso - art. 220 CPC"
-        };
+        // Conteúdo do arquivo CSV de feriados incorporado diretamente no código.
+        const feriadosCSV = `FERIADOS,DIA
+"Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",05/08/2024
+"Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",06/08/2024
+"Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",07/08/2024
+"Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",08/08/2024
+"Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",09/08/2024
+Dia do Advogado,11/08/2024
+Elevação do Amazonas a categoria de província,05/09/2024
+Ponto Facultativo,06/09/2024
+Independência,07/09/2024
+N. S. Aparecida,12/10/2024
+Aniversário de Manaus,24/10/2024
+Ponto Facultativo,25/10/2024
+Dia do Servidor,28/10/2024
+Finados,02/11/2024
+Semana Nacional de Conciliação,04/11/2024
+Semana Nacional de Conciliação,05/11/2024
+Semana Nacional de Conciliação,06/11/2024
+Semana Nacional de Conciliação,07/11/2024
+Semana Nacional de Conciliação,08/11/2024
+Proclamação da República,15/11/2024
+Eleição da OAB - Portaria N° 4270/2024,19/11/2024
+Consciência Negra,20/11/2024
+"Nossa Senhora da Conceição / Dia da Justiça",08/12/2024
+Dia do Ministério Público,14/12/2024
+Recesso Forense,20/12/2024
+Recesso Forense,21/12/2024
+Recesso Forense,22/12/2024
+Recesso Forense,23/12/2024
+Recesso Forense,24/12/2024
+Recesso Forense,25/12/2024
+Recesso Forense,26/12/2024
+Recesso Forense,27/12/2024
+Recesso Forense,28/12/2024
+Recesso Forense,29/12/2024
+Recesso Forense,30/12/2024
+Recesso Forense,31/12/2024
+Recesso Forense,01/01/2025
+Recesso Forense,02/01/2025
+Recesso Forense,03/01/2025
+Recesso Forense,04/01/2025
+Recesso Forense,05/01/2025
+Recesso Forense,06/01/2025
+Prazo Suspenso - art. 220 do CPC,07/01/2025
+Prazo Suspenso - art. 220 do CPC,08/01/2025
+Prazo Suspenso - art. 220 do CPC,09/01/2025
+Prazo Suspenso - art. 220 do CPC,10/01/2025
+Prazo Suspenso - art. 220 do CPC,11/01/2025
+Prazo Suspenso - art. 220 do CPC,12/01/2025
+Prazo Suspenso - art. 220 do CPC,13/01/2025
+Prazo Suspenso - art. 220 do CPC,14/01/2025
+Prazo Suspenso - art. 220 do CPC,15/01/2025
+Prazo Suspenso - art. 220 do CPC,16/01/2025
+Prazo Suspenso - art. 220 do CPC,17/01/2025
+Prazo Suspenso - art. 220 do CPC,18/01/2025
+Prazo Suspenso - art. 220 do CPC,19/01/2025
+Prazo Suspenso - art. 220 do CPC,20/01/2025
+Carnaval,03/03/2025
+Carnaval,04/03/2025
+Carnaval,05/03/2025
+Quinta-Feira Santa,17/04/2025
+"Paixão de Cristo Sexta-feira Santa",18/04/2025
+Tiradentes,21/04/2025
+Dia do Trabalhador,01/05/2025
+Ponto Facultativo,02/05/2025
+Dia do Defensor,19/05/2025
+Corpus Christi,19/06/2025
+Ponto Facultativo,20/06/2025
+Festival de Parintins,27/06/2025
+Instalação do Judiciário,04/07/2025
+"Semana de Atenção à Pessoa Idosa",04/08/2025
+"Semana de Atenção à Pessoa Idosa",05/08/2025
+"Semana de Atenção à Pessoa Idosa",06/08/2025
+"Semana de Atenção à Pessoa Idosa",07/08/2025
+"Semana de Atenção à Pessoa Idosa",08/08/2025
+Dia do Advogado,11/08/2025
+"Elevação do Amazonas a categoria de província",05/09/2025
+"Independência do Brasil",07/09/2025
+"N. S. Aparecida",12/10/2025
+"Aniversário de Manaus",24/10/2025
+Dia do Servidor,28/10/2025
+Finados,02/11/2025
+"Proclamação da República",15/11/2025
+"Consciência Negra",20/11/2025
+Ponto Facultativo,21/11/2025
+"N. S. da Conceição",08/12/2025
+"Dia do Ministério Público",14/12/2025
+Recesso Forense,20/12/2025
+Recesso Forense,21/12/2025
+Recesso Forense,22/12/2025
+Recesso Forense,23/12/2025
+Recesso Forense,24/12/2025
+Recesso Forense,25/12/2025
+Recesso Forense,26/12/2025
+Recesso Forense,27/12/2025
+Recesso Forense,28/12/2025
+Recesso Forense,29/12/2025
+Recesso Forense,30/12/2025
+Recesso Forense,31/12/2025
+`;
         
         let listaDeFeriados = {};
         let ultimoResultado = null;
         const diasDaSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+
+        /**
+         * Processa uma string CSV para um objeto de feriados.
+         * Lida com nomes de feriados que contêm vírgulas, desde que estejam entre aspas.
+         * @param {string} csvText - O conteúdo completo do arquivo CSV.
+         * @returns {object} Um objeto onde as chaves são datas (YYYY-MM-DD) e os valores são os nomes dos feriados.
+         */
+        function parseFeriadosCSV(csvText) {
+            const feriados = {};
+            const rows = csvText.trim().split('\n').slice(1); // Pula o cabeçalho
+
+            rows.forEach(row => {
+                if (!row.trim()) return; // Pula linhas vazias
+
+                // Regex para lidar com campos entre aspas que podem conter vírgulas
+                const regex = /(?:"([^"]*)"|([^,]*)),(.*)/;
+                const match = row.match(regex);
+
+                if (match) {
+                    const nomeFeriado = (match[1] || match[2]).trim();
+                    const dateStr = match[3].trim();
+                    const dateParts = dateStr.split('/');
+                    
+                    if (dateParts.length === 3) {
+                        const [day, month, year] = dateParts;
+                        const fullYear = year.length === 2 ? `20${year}` : year;
+                        const dataFormatada = `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                        feriados[dataFormatada] = nomeFeriado;
+                    }
+                } else if (row.includes(',')) {
+                    // Fallback para linhas simples sem aspas
+                    const parts = row.split(',');
+                    const nomeFeriado = parts[0].trim();
+                    const dateParts = parts[1].trim().split('/');
+                     if (dateParts.length === 3) {
+                        const [day, month, year] = dateParts;
+                        const fullYear = year.length === 2 ? `20${year}` : year;
+                        const dataFormatada = `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                        feriados[dataFormatada] = nomeFeriado;
+                    }
+                }
+            });
+            return feriados;
+        }
 
         function isDiaUtil(data) {
             const diaDaSemana = data.getDay();
@@ -139,37 +271,6 @@
             const isFimDeSemana = diaDaSemana === 0 || diaDaSemana === 6;
             const isFeriado = !!listaDeFeriados[dataFormatada];
             return !isFimDeSemana && !isFeriado;
-        }
-
-        async function buscarFeriadosOnline(url) {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
-            try {
-                const response = await fetch(url, { signal: controller.signal });
-                clearTimeout(timeoutId);
-                if (!response.ok) throw new Error(`Erro na rede: Status ${response.status}`);
-                
-                const csvData = await response.text();
-                const feriados = {};
-                const rows = csvData.split('\n').slice(1);
-                rows.forEach(row => {
-                    const columns = row.split(',');
-                    if (columns.length > 1 && columns[0] && columns[1]) {
-                        const nomeFeriado = columns[0].trim().replace(/"/g, '');
-                        const dateParts = columns[1].trim().replace(/"/g, '').split('/');
-                        if (dateParts.length === 3) {
-                            const [day, month, year] = dateParts;
-                            const dataFormatada = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-                            feriados[dataFormatada] = nomeFeriado;
-                        }
-                    }
-                });
-                return feriados;
-            } catch (error) {
-                clearTimeout(timeoutId);
-                console.error("Falha ao buscar feriados online:", error);
-                return null;
-            }
         }
 
         function calcularPrazoFinal(dataInicio, diasUteis) {
@@ -379,18 +480,14 @@
             });
         }
         
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
             const statusFeriadosEl = document.getElementById('status-feriados');
-            listaDeFeriados = await buscarFeriadosOnline(googleSheetUrl);
             
-            if (listaDeFeriados && Object.keys(listaDeFeriados).length > 0) {
-                statusFeriadosEl.textContent = `Feriados carregados da planilha online.`;
-                statusFeriadosEl.classList.replace('text-gray-500', 'text-green-600');
-            } else {
-                listaDeFeriados = feriadosFallback;
-                statusFeriadosEl.textContent = 'Aviso: Usando lista de feriados interna (offline).';
-                statusFeriadosEl.classList.replace('text-gray-500', 'text-amber-600');
-            }
+            // Carrega e processa os feriados da variável CSV
+            listaDeFeriados = parseFeriadosCSV(feriadosCSV);
+            
+            statusFeriadosEl.textContent = 'Feriados carregados da lista local.';
+            statusFeriadosEl.classList.replace('text-gray-500', 'text-green-600');
 
             const today = new Date();
             const yyyy = today.getFullYear();
