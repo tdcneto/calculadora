@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Biblioteca para gerar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
@@ -35,6 +36,7 @@
             <p id="status-feriados" class="text-sm text-gray-500 mt-2">Carregando feriados...</p>
         </div>
 
+        <!-- === CALCULADORA DE PRAZO FINAL === -->
         <div id="calculadora-prazo-final">
             <h2 class="text-xl font-bold text-gray-800">Calcular Prazo Final</h2>
             <p class="text-sm text-gray-500 mb-6">A partir do 1º dia do prazo, calcule a data final.</p>
@@ -69,8 +71,10 @@
             <div id="error-div" class="mt-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg text-center hidden"></div>
         </div>
 
+        <!-- === DIVISOR === -->
         <hr class="my-10 border-gray-200">
 
+        <!-- === CALCULADORA DO 1º DIA DO PRAZO === -->
         <div id="calculadora-primeiro-dia">
             <h2 class="text-xl font-bold text-gray-800">Calcular 1º Dia do Prazo</h2>
             <p class="text-sm text-gray-500 mb-6">Calcule o início do prazo a partir da data de disponibilização/envio (Res. 455/2022 CNJ).</p>
@@ -100,6 +104,7 @@
             <div id="error-citacao-div" class="mt-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg text-center hidden"></div>
         </div>
         
+        <!-- === BOTÃO DE EXPORTAR === -->
         <div id="export-div" class="mt-10 text-center hidden">
             <button id="export-pdf-btn" class="bg-green-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
                 Exportar Resultado para PDF
@@ -259,7 +264,8 @@
 
         function exportarParaPDF() {
             if (!ultimoResultado) {
-                alert("Nenhum resultado para exportar. Por favor, calcule um prazo primeiro.");
+                // Em vez de alert(), podemos usar um modal customizado no futuro. Por enquanto, console.error é seguro.
+                console.error("Nenhum resultado para exportar. Por favor, calcule um prazo primeiro.");
                 return;
             }
 
@@ -397,6 +403,15 @@
                 statusFeriadosEl.textContent = 'Aviso: Usando lista de feriados interna (offline).';
                 statusFeriadosEl.classList.replace('text-gray-500', 'text-amber-600');
             }
+
+            // Define a data de hoje como padrão nos inputs
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const todayString = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('data-inicio').value = todayString;
+            document.getElementById('data-envio').value = todayString;
         });
 
         // Event Listener para a Calculadora de Prazo Final
