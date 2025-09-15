@@ -8,114 +8,144 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Biblioteca para gerar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
         }
         .loader {
-            border-top-color: #3498db;
+            border-top-color: #4f46e5; /* indigo-600 */
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        /* Para um scroll mais suave na lista de detalhes */
-        #detalhes-lista, #detalhes-citacao-lista {
+        #detalhes-lista, #intimacao-detalhes-lista {
             scrollbar-width: thin;
             scrollbar-color: #a0aec0 #e2e8f0;
         }
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .toast {
+            transition: opacity 0.3s, transform 0.3s;
+        }
     </style>
 </head>
-<body class="bg-gray-100 py-8">
+<body class="py-8 px-4">
 
-    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-6 md:p-8 mx-auto">
-        <div class="text-center mb-6">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Calculadora de Prazos Jurídicos</h1>
+    <div class="max-w-3xl mx-auto space-y-8">
+        <div class="text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Calculadora de Prazos Jurídicos</h1>
             <p id="status-feriados" class="text-sm text-gray-500 mt-2">Carregando feriados...</p>
         </div>
 
-        <!-- === CALCULADORA DE PRAZO FINAL === -->
-        <div id="calculadora-prazo-final">
-            <h2 class="text-xl font-bold text-gray-800">Calcular Prazo Final</h2>
-            <p class="text-sm text-gray-500 mb-6">A partir do 1º dia do prazo, calcule a data final.</p>
+        <!-- Card: Calculadora de Prazo Final -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="flex items-center gap-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
+                <h2 class="text-2xl font-bold text-gray-800">Calcular Prazo Final</h2>
+            </div>
             
-            <form id="prazo-form" class="space-y-6">
+            <form id="prazo-form" class="space-y-4">
                 <div>
-                    <label for="data-inicio" class="block text-sm font-medium text-gray-700 mb-1">1º Dia do Prazo (Início da contagem)</label>
-                    <input type="date" id="data-inicio" name="data-inicio" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    <label for="prazo-data-inicio" class="block text-sm font-medium text-gray-700 mb-1">1º Dia do Prazo (Início da contagem)</label>
+                    <input type="date" id="prazo-data-inicio" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 transition">
                 </div>
-
                 <div>
-                    <label for="dias-uteis" class="block text-sm font-medium text-gray-700 mb-1">Quantidade de Dias Úteis</p>
-                    <input type="number" id="dias-uteis" name="dias-uteis" min="1" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Ex: 15">
+                    <label for="prazo-dias-uteis" class="block text-sm font-medium text-gray-700 mb-1">Quantidade de Dias Úteis</label>
+                    <input type="number" id="prazo-dias-uteis" min="1" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 transition" placeholder="Ex: 15">
                 </div>
-
-                <button type="submit" id="calcular-btn" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out flex items-center justify-center">
-                    <span id="btn-text">Calcular Prazo Final</span>
-                    <div id="loader" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 ml-3 hidden"></div>
-                </button>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <button type="button" id="prazo-clear-btn" class="w-full bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-lg hover:bg-gray-300 transition">Limpar</button>
+                    <button type="submit" id="prazo-calcular-btn" class="w-full sm:col-span-2 bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition flex items-center justify-center">
+                        <span id="prazo-btn-text">Calcular Prazo Final</span>
+                        <div id="prazo-loader" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-5 w-5 ml-3 hidden"></div>
+                    </button>
+                </div>
             </form>
-
-            <div id="resultado-div" class="mt-8 p-5 bg-gray-50 rounded-lg text-center hidden">
-                <p class="text-gray-600">O prazo final é:</p>
-                <p id="data-final" class="text-2xl font-bold text-blue-600 mt-1"></p>
+            <!-- Área de Resultado -->
+            <div id="prazo-resultado-area" class="mt-6 hidden">
+                <div class="p-5 bg-gray-50 rounded-lg">
+                    <div class="flex justify-between items-center">
+                         <div>
+                            <p class="text-gray-600 text-sm">O prazo final é:</p>
+                            <p id="prazo-data-final" class="text-2xl font-bold text-indigo-600"></p>
+                         </div>
+                         <button id="prazo-copy-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-3 rounded-lg text-sm transition flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path></svg>
+                            Copiar
+                         </button>
+                    </div>
+                </div>
+                <div id="prazo-detalhes-div" class="mt-4">
+                    <h3 class="text-md font-semibold text-gray-700 mb-2 text-center">Detalhamento da Contagem</h3>
+                    <div id="prazo-detalhes-lista" class="max-h-60 overflow-y-auto p-3 bg-gray-50 rounded-lg border space-y-2"></div>
+                </div>
             </div>
-            
-            <div id="detalhes-div" class="mt-6 hidden">
-                <h3 class="text-lg font-semibold text-gray-700 mb-3 text-center">Detalhamento da Contagem</h3>
-                <div id="detalhes-lista" class="max-h-60 overflow-y-auto p-3 bg-gray-50 rounded-lg border space-y-2"></div>
-            </div>
-
-            <div id="error-div" class="mt-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg text-center hidden"></div>
+            <div id="prazo-error-div" class="mt-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg text-center hidden"></div>
         </div>
 
-        <!-- === DIVISOR === -->
-        <hr class="my-10 border-gray-200">
-
-        <!-- === CALCULADORA DO 1º DIA DO PRAZO === -->
-        <div id="calculadora-primeiro-dia">
-            <h2 class="text-xl font-bold text-gray-800">Calcular Data da Intimação</h2>
-            <p class="text-sm text-gray-500 mb-6">Calcule a <strong>data da intimação</strong> (dia do começo do prazo) a partir da data de envio (Res. 455/2022 CNJ).</p>
+        <!-- Card: Calculadora de Data da Intimação -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="flex items-center gap-3 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-teal-600"><path d="m16 16-4-4 4-4"></path><path d="m8 16 4-4-4-4"></path><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"></path><path d="M12 3v2"></path><path d="M12 19v2"></path></svg>
+                <h2 class="text-2xl font-bold text-gray-800">Calcular Data da Intimação</h2>
+            </div>
+            <p class="text-sm text-gray-600 mb-4 -mt-4">Calcule o "dia do começo" do prazo a partir da data de envio (Res. 455/2022 CNJ).</p>
             
-            <form id="citacao-form" class="space-y-6">
+            <form id="intimacao-form" class="space-y-4">
                 <div>
-                    <label for="data-envio" class="block text-sm font-medium text-gray-700 mb-1">Data da Disponibilização/Envio</label>
-                    <input type="date" id="data-envio" name="data-envio" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
+                    <label for="intimacao-data-envio" class="block text-sm font-medium text-gray-700 mb-1">Data da Disponibilização/Envio</label>
+                    <input type="date" id="intimacao-data-envio" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 transition">
                 </div>
-
-                <button type="submit" id="calcular-citacao-btn" class="w-full bg-teal-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition duration-300 ease-in-out flex items-center justify-center">
-                    <span id="btn-citacao-text">Calcular Data da Intimação</span>
-                    <div id="loader-citacao" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 ml-3 hidden"></div>
-                </button>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                     <button type="button" id="intimacao-clear-btn" class="w-full bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-lg hover:bg-gray-300 transition">Limpar</button>
+                     <button type="submit" id="intimacao-calcular-btn" class="w-full sm:col-span-2 bg-teal-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition flex items-center justify-center">
+                        <span id="intimacao-btn-text">Calcular Data</span>
+                        <div id="intimacao-loader" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-5 w-5 ml-3 hidden"></div>
+                    </button>
+                </div>
             </form>
-
-            <div id="resultado-citacao-div" class="mt-8 p-5 bg-gray-50 rounded-lg text-center hidden">
-                <p class="text-gray-600">Data da Intimação (começo do prazo):</p>
-                <p id="data-final-citacao" class="text-2xl font-bold text-teal-600 mt-1"></p>
+             <!-- Área de Resultado -->
+            <div id="intimacao-resultado-area" class="mt-6 hidden">
+                <div class="p-5 bg-gray-50 rounded-lg">
+                     <div class="flex justify-between items-center">
+                         <div>
+                            <p class="text-gray-600 text-sm">Data da Intimação (começo do prazo):</p>
+                            <p id="intimacao-data-final" class="text-2xl font-bold text-teal-600"></p>
+                         </div>
+                         <button id="intimacao-copy-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-3 rounded-lg text-sm transition flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path></svg>
+                            Copiar
+                         </button>
+                    </div>
+                </div>
+                <div id="intimacao-detalhes-div" class="mt-4">
+                    <h3 class="text-md font-semibold text-gray-700 mb-2 text-center">Detalhamento do Cálculo</h3>
+                    <div id="intimacao-detalhes-lista" class="max-h-60 overflow-y-auto p-3 bg-gray-50 rounded-lg border space-y-2"></div>
+                </div>
             </div>
-            
-            <div id="detalhes-citacao-div" class="mt-6 hidden">
-                <h3 class="text-lg font-semibold text-gray-700 mb-3 text-center">Detalhamento do Cálculo</h3>
-                <div id="detalhes-citacao-lista" class="max-h-60 overflow-y-auto p-3 bg-gray-50 rounded-lg border space-y-2"></div>
-            </div>
-            
-            <div id="error-citacao-div" class="mt-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg text-center hidden"></div>
+            <div id="intimacao-error-div" class="mt-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg text-center hidden"></div>
         </div>
-        
-        <!-- === BOTÃO DE EXPORTAR === -->
-        <div id="export-div" class="mt-10 text-center hidden">
-            <button id="export-pdf-btn" class="bg-green-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
+
+         <!-- Botão de Exportar PDF -->
+        <div id="export-div" class="text-center hidden">
+            <button id="export-pdf-btn" class="bg-green-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
                 Exportar Resultado para PDF
             </button>
         </div>
+    </div>
 
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transform translate-y-2 toast">
+        Copiado para a área de transferência!
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO ---
-        // Conteúdo do arquivo CSV de feriados incorporado diretamente no código.
+        // --- CONFIGURAÇÃO E DADOS ---
         const feriadosCSV = `FERIADOS,DIA
 "Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",05/08/2024
 "Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",06/08/2024
@@ -196,7 +226,7 @@ Dia do Advogado,11/08/2025
 "Independência do Brasil",07/09/2025
 "N. S. Aparecida",12/10/2025
 "Aniversário de Manaus",24/10/2025
-Dia do Servidor,27/10/2025
+Dia do Servidor,28/10/2025
 Finados,02/11/2025
 "Proclamação da República",15/11/2025
 "Consciência Negra",20/11/2025
@@ -221,40 +251,20 @@ Recesso Forense,31/12/2025
         let ultimoResultado = null;
         const diasDaSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 
-        /**
-         * Processa uma string CSV para um objeto de feriados.
-         * Lida com nomes de feriados que contêm vírgulas, desde que estejam entre aspas.
-         * @param {string} csvText - O conteúdo completo do arquivo CSV.
-         * @returns {object} Um objeto onde as chaves são datas (YYYY-MM-DD) e os valores são os nomes dos feriados.
-         */
+        // --- FUNÇÕES DE LÓGICA DE CÁLCULO ---
+
         function parseFeriadosCSV(csvText) {
             const feriados = {};
-            const rows = csvText.trim().split('\n').slice(1); // Pula o cabeçalho
-
+            const rows = csvText.trim().split('\n').slice(1);
             rows.forEach(row => {
-                if (!row.trim()) return; // Pula linhas vazias
-
-                // Regex para lidar com campos entre aspas que podem conter vírgulas
+                if (!row.trim()) return;
                 const regex = /(?:"([^"]*)"|([^,]*)),(.*)/;
                 const match = row.match(regex);
-
                 if (match) {
                     const nomeFeriado = (match[1] || match[2]).trim();
                     const dateStr = match[3].trim();
                     const dateParts = dateStr.split('/');
-                    
                     if (dateParts.length === 3) {
-                        const [day, month, year] = dateParts;
-                        const fullYear = year.length === 2 ? `20${year}` : year;
-                        const dataFormatada = `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-                        feriados[dataFormatada] = nomeFeriado;
-                    }
-                } else if (row.includes(',')) {
-                    // Fallback para linhas simples sem aspas
-                    const parts = row.split(',');
-                    const nomeFeriado = parts[0].trim();
-                    const dateParts = parts[1].trim().split('/');
-                     if (dateParts.length === 3) {
                         const [day, month, year] = dateParts;
                         const fullYear = year.length === 2 ? `20${year}` : year;
                         const dataFormatada = `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
@@ -265,340 +275,239 @@ Recesso Forense,31/12/2025
             return feriados;
         }
 
-        function isDiaUtil(data) {
-            const diaDaSemana = data.getDay();
-            const dataFormatada = data.toISOString().split('T')[0];
-            const isFimDeSemana = diaDaSemana === 0 || diaDaSemana === 6;
-            const isFeriado = !!listaDeFeriados[dataFormatada];
-            return !isFimDeSemana && !isFeriado;
-        }
-
         function calcularPrazoFinal(dataInicio, diasUteis) {
             let dataAtual = new Date(dataInicio.valueOf());
+            const detalhes = [{ data: new Date(dataInicio.valueOf()), status: 'Início', nomeFeriado: 'Dia do começo excluído - art. 224 do CPC' }];
             let diasUteisContados = 0;
-            const detalhes = [];
-
-            detalhes.push({
-                data: new Date(dataInicio.valueOf()),
-                status: 'Início',
-                nomeFeriado: 'Dia do começo excluído - art. 224 do CPC'
-            });
-
             while (diasUteisContados < diasUteis) {
                 dataAtual.setDate(dataAtual.getDate() + 1);
-                
                 const diaDaSemana = dataAtual.getDay();
                 const dataFormatada = dataAtual.toISOString().split('T')[0];
                 const isFimDeSemana = diaDaSemana === 0 || diaDaSemana === 6;
                 const nomeFeriado = listaDeFeriados[dataFormatada];
-
-                let status = '';
-                let diaUtilNumero = null;
-
+                let status = '', diaUtilNumero = null;
                 if (!isFimDeSemana && !nomeFeriado) {
                     diasUteisContados++;
                     status = 'Dia útil';
                     diaUtilNumero = diasUteisContados;
-                } else if (nomeFeriado) {
-                    status = 'Feriado';
                 } else {
-                    status = 'Fim de semana';
+                    status = nomeFeriado ? 'Feriado' : 'Fim de semana';
                 }
-                
-                detalhes.push({
-                    data: new Date(dataAtual.valueOf()),
-                    status: status,
-                    diaUtilNumero: diaUtilNumero,
-                    nomeFeriado: nomeFeriado || null
-                });
+                detalhes.push({ data: new Date(dataAtual.valueOf()), status, diaUtilNumero, nomeFeriado: nomeFeriado || null });
             }
             return { dataFinal: dataAtual, detalhes };
         }
 
         function calcularDataIntimacao(dataEnvio) {
             const detalhes = [];
-            
             detalhes.push({ data: new Date(dataEnvio.valueOf()), status: 'Info', nomeFeriado: `1. Data de Disponibilização/Envio` });
-
             let dataProvisoria = new Date(dataEnvio.valueOf());
             dataProvisoria.setDate(dataProvisoria.getDate() + 10);
             detalhes.push({ data: new Date(dataProvisoria.valueOf()), status: 'Info', nomeFeriado: `2. Termo Final Provisório (10º dia corrido)` });
-            
             let dataFinalCitacao = new Date(dataProvisoria.valueOf());
             while (true) {
                 const diaDaSemana = dataFinalCitacao.getDay();
                 const dataFormatada = dataFinalCitacao.toISOString().split('T')[0];
                 const isFimDeSemana = diaDaSemana === 0 || diaDaSemana === 6;
                 const nomeFeriado = listaDeFeriados[dataFormatada];
-
                 if (!isFimDeSemana && !nomeFeriado) {
-                    if (dataFinalCitacao.getTime() === dataProvisoria.getTime()) {
-                         detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: `3. Data da intimação (dia útil)` });
-                    } else {
-                        detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: `3. Data da intimação (prorrogada)` });
-                    }
+                    const statusText = dataFinalCitacao.getTime() === dataProvisoria.getTime() ? `3. Data da intimação (dia útil)` : `3. Data da intimação (prorrogada)`;
+                    detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: 'Final', nomeFeriado: statusText });
                     break; 
                 } else {
-                    detalhes.push({ 
-                        data: new Date(dataFinalCitacao.valueOf()), 
-                        status: isFimDeSemana ? 'Fim de semana' : 'Feriado',
-                        nomeFeriado: nomeFeriado || null
-                    });
+                    detalhes.push({ data: new Date(dataFinalCitacao.valueOf()), status: isFimDeSemana ? 'Fim de semana' : 'Feriado', nomeFeriado: nomeFeriado || null });
                     dataFinalCitacao.setDate(dataFinalCitacao.getDate() + 1);
                 }
             }
-            
             return { dataFinal: dataFinalCitacao, detalhes };
         }
+        
+        // --- FUNÇÕES DE MANIPULAÇÃO DA UI (GENÉRICAS) ---
 
-
-        function exportarParaPDF() {
-            if (!ultimoResultado) {
-                console.error("Nenhum resultado para exportar.");
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+        function setUIDisabled(prefix, isDisabled) {
+            const btn = document.getElementById(`${prefix}-calcular-btn`);
+            const btnText = document.getElementById(`${prefix}-btn-text`);
+            const loader = document.getElementById(`${prefix}-loader`);
             
-            doc.setFontSize(12);
-            doc.setTextColor(0);
+            btn.disabled = isDisabled;
+            loader.classList.toggle('hidden', !isDisabled);
+            btnText.textContent = isDisabled ? 'Calculando...' : (prefix === 'prazo' ? 'Calcular Prazo Final' : 'Calcular Data');
+        }
 
-            let y = 35;
-            if (ultimoResultado.tipo === 'prazoFinal') {
-                const dataInicio = new Date(`${document.getElementById('data-inicio').value}T00:00:00`);
-                const diasUteis = document.getElementById('dias-uteis').value;
-                doc.setFontSize(18);
-                doc.text("Relatório de Contagem de Prazo Final", 105, 20, { align: "center" });
-                doc.setFontSize(12);
-                doc.text(`1º Dia do Prazo (Início): ${dataInicio.toLocaleDateString('pt-BR')}`, 14, y);
-                doc.text(`Dias Úteis Contados: ${diasUteis}`, 14, y + 7);
-                doc.text(`Data Final Encontrada: ${ultimoResultado.dataFinal.toLocaleDateString('pt-BR')}`, 14, y + 14);
-            } else if (ultimoResultado.tipo === 'dataIntimacao') {
-                const dataEnvio = new Date(`${document.getElementById('data-envio').value}T00:00:00`);
-                doc.setFontSize(18);
-                doc.text("Relatório de Cálculo da Data da Intimação", 105, 20, { align: "center" });
-                doc.setFontSize(12);
-                doc.text(`Data de Envio/Disponibilização: ${dataEnvio.toLocaleDateString('pt-BR')}`, 14, y);
-                doc.text(`Data da Intimação Encontrada: ${ultimoResultado.dataFinal.toLocaleDateString('pt-BR')}`, 14, y + 7);
-            }
-
-            const drawTableHeader = (yPos) => {
-                doc.setFontSize(10);
-                doc.setTextColor(100);
-                doc.text("Data", 14, yPos);
-                doc.text("Dia da Semana", 50, yPos);
-                doc.text("Status / Detalhe", 130, yPos);
-                let newY = yPos + 3;
-                doc.setLineWidth(0.2);
-                doc.line(14, newY, 196, newY);
-                return newY + 5;
-            };
-
-            y += 30;
-            doc.setFontSize(14);
-            doc.text("Detalhamento do Cálculo", 14, y);
-            doc.setLineWidth(0.5);
-            doc.line(14, y + 2, 196, y + 2);
-
-            y += 10;
-            y = drawTableHeader(y);
-            doc.setTextColor(0);
-
-            ultimoResultado.detalhes.forEach(dia => {
-                const diaFormatado = dia.data.toLocaleDateString('pt-BR');
-                const nomeDiaSemana = diasDaSemana[dia.data.getDay()];
-                let statusText = '';
-
-                if (dia.status === 'Dia útil') {
-                    statusText = `Dia útil #${dia.diaUtilNumero}`;
-                } else if (dia.nomeFeriado) {
-                    statusText = dia.nomeFeriado;
-                } else {
-                    statusText = 'Fim de semana';
-                }
-
-                const lines = doc.splitTextToSize(statusText, 65);
-                const blockHeight = lines.length * 5;
-
-                if (y + blockHeight > 280) {
-                    doc.addPage();
-                    y = 20;
-                    y = drawTableHeader(y);
-                    doc.setTextColor(0);
-                }
-                
-                doc.text(diaFormatado, 14, y);
-                doc.text(nomeDiaSemana, 50, y);
-                doc.text(lines, 130, y);
-
-                y += blockHeight + 2;
+        function clearUI(prefix, inputIds) {
+            document.getElementById(`${prefix}-resultado-area`).classList.add('hidden');
+            document.getElementById(`${prefix}-error-div`).classList.add('hidden');
+            document.getElementById('export-div').classList.add('hidden');
+            inputIds.forEach(id => {
+                const input = document.getElementById(id);
+                if (input.type === 'number') input.value = '';
+                else input.value = new Date().toISOString().split('T')[0];
             });
-
-            doc.save(`calculo_prazo_${new Date().toISOString().split('T')[0]}.pdf`);
+             ultimoResultado = null;
         }
 
         function renderizarDetalhes(listaEl, detalhes) {
             listaEl.innerHTML = '';
             detalhes.forEach(dia => {
-                let statusClass = '';
-                let statusText = '';
-
+                let statusClass = '', statusText = '';
                 switch(dia.status) {
-                    case 'Dia útil':
-                        statusClass = 'text-green-700';
-                        statusText = `Dia útil #${dia.diaUtilNumero}`;
-                        break;
-                    case 'Feriado':
-                        statusClass = 'text-red-600';
-                        statusText = dia.nomeFeriado || 'Feriado';
-                        break;
-                    case 'Início': case 'Info':
-                         statusClass = 'text-gray-600';
-                         statusText = dia.nomeFeriado;
-                         break;
-                    case 'Final':
-                         statusClass = 'text-blue-700';
-                         statusText = dia.nomeFeriado;
-                         break;
-                    default: // Fim de semana
-                        statusClass = 'text-gray-500';
-                        statusText = 'Fim de semana';
+                    case 'Dia útil': statusClass = 'text-green-700'; statusText = `Dia útil #${dia.diaUtilNumero}`; break;
+                    case 'Feriado': statusClass = 'text-red-600'; statusText = dia.nomeFeriado || 'Feriado'; break;
+                    case 'Início': case 'Info': statusClass = 'text-gray-600'; statusText = dia.nomeFeriado; break;
+                    case 'Final': statusClass = 'text-blue-700'; statusText = dia.nomeFeriado; break;
+                    default: statusClass = 'text-gray-500'; statusText = 'Fim de semana';
                 }
-
                 const diaFormatado = dia.data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 const nomeDiaSemana = diasDaSemana[dia.data.getDay()];
-                
-                const itemHtml = `
-                    <div class="flex justify-between items-center text-sm p-2 rounded ${dia.status === 'Final' ? 'bg-blue-50' : ''}">
-                        <span>${diaFormatado} <span class="text-gray-400">- ${nomeDiaSemana}</span></span>
-                        <span class="font-semibold text-right ${statusClass}">${statusText}</span>
-                    </div>
-                `;
-                listaEl.innerHTML += itemHtml;
+                listaEl.innerHTML += `<div class="flex justify-between items-center text-sm p-2 rounded ${dia.status === 'Final' ? 'bg-blue-50' : ''}"><span>${diaFormatado} <span class="text-gray-400">- ${nomeDiaSemana}</span></span><span class="font-semibold text-right ${statusClass}">${statusText}</span></div>`;
             });
         }
         
-        document.addEventListener('DOMContentLoaded', () => {
-            const statusFeriadosEl = document.getElementById('status-feriados');
-            
-            // Carrega e processa os feriados da variável CSV
-            listaDeFeriados = parseFeriadosCSV(feriadosCSV);
-            
-            statusFeriadosEl.textContent = 'Feriados atualizados até Portaria 2602/25 TJAM - 20/08/2025.';
-            statusFeriadosEl.classList.replace('text-gray-500', 'text-green-600');
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('opacity-0', 'translate-y-2');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+            }, 2000);
+        }
 
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            const todayString = `${yyyy}-${mm}-${dd}`;
-            document.getElementById('data-inicio').value = todayString;
-            document.getElementById('data-envio').value = todayString;
+        function copyResult(prefix) {
+            const dataFinal = document.getElementById(`${prefix}-data-final`).textContent;
+            const detalhesEl = document.getElementById(`${prefix}-detalhes-lista`);
+            let detalhesText = Array.from(detalhesEl.children).map(item => item.innerText.replace('\t', ' - ')).join('\n');
+            
+            const title = prefix === 'prazo' ? 'CÁLCULO DE PRAZO FINAL' : 'CÁLCULO DE DATA DE INTIMAÇÃO';
+            const resultLabel = prefix === 'prazo' ? 'Prazo Final:' : 'Data da Intimação:';
+
+            const copyText = `${title}\n====================\n${resultLabel} ${dataFinal}\n\nDETALHAMENTO:\n${detalhesText}`;
+            navigator.clipboard.writeText(copyText).then(() => showToast('Resultado copiado!'));
+        }
+
+        // --- INICIALIZAÇÃO E EVENT LISTENERS ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            listaDeFeriados = parseFeriadosCSV(feriadosCSV);
+            document.getElementById('status-feriados').textContent = 'Feriados (TJAM) carregados da lista local.';
+            document.getElementById('status-feriados').classList.replace('text-gray-500', 'text-green-600');
+            clearUI('prazo', ['prazo-data-inicio', 'prazo-dias-uteis']);
+            clearUI('intimacao', ['intimacao-data-envio']);
         });
 
         document.getElementById('prazo-form').addEventListener('submit', (event) => {
             event.preventDefault();
+            clearUI('intimacao', ['intimacao-data-envio']);
+            setUIDisabled('prazo', true);
             
-            const btnText = document.getElementById('btn-text');
-            const loader = document.getElementById('loader');
-            const resultadoDiv = document.getElementById('resultado-div');
-            const errorDiv = document.getElementById('error-div');
-            const detalhesDiv = document.getElementById('detalhes-div');
-            const detalhesLista = document.getElementById('detalhes-lista');
-            const exportDiv = document.getElementById('export-div');
-
-            document.getElementById('resultado-citacao-div').classList.add('hidden');
-            document.getElementById('detalhes-citacao-div').classList.add('hidden');
-            document.getElementById('error-citacao-div').classList.add('hidden');
-
-            resultadoDiv.classList.add('hidden');
-            errorDiv.classList.add('hidden');
-            detalhesDiv.classList.add('hidden');
-            exportDiv.classList.add('hidden');
-            btnText.textContent = 'Calculando...';
-            loader.classList.remove('hidden');
-
-            try {
-                const dataInicioStr = document.getElementById('data-inicio').value;
-                const diasUteis = parseInt(document.getElementById('dias-uteis').value);
-
-                if (!dataInicioStr || isNaN(diasUteis) || diasUteis <= 0) {
-                    throw new Error("Por favor, preencha todos os campos corretamente.");
+            setTimeout(() => {
+                try {
+                    const dataInicioStr = document.getElementById('prazo-data-inicio').value;
+                    const diasUteis = parseInt(document.getElementById('prazo-dias-uteis').value);
+                    if (!dataInicioStr || isNaN(diasUteis) || diasUteis <= 0) {
+                        throw new Error("Preencha a data de início e um número de dias úteis válido (maior que zero).");
+                    }
+                    const resultado = calcularPrazoFinal(new Date(`${dataInicioStr}T00:00:00`), diasUteis);
+                    ultimoResultado = { ...resultado, tipo: 'prazoFinal' };
+                    document.getElementById('prazo-data-final').textContent = resultado.dataFinal.toLocaleDateString('pt-BR');
+                    renderizarDetalhes(document.getElementById('prazo-detalhes-lista'), resultado.detalhes);
+                    document.getElementById('prazo-resultado-area').classList.remove('hidden');
+                    document.getElementById('export-div').classList.remove('hidden');
+                } catch (error) {
+                    document.getElementById('prazo-error-div').textContent = error.message;
+                    document.getElementById('prazo-error-div').classList.remove('hidden');
+                } finally {
+                    setUIDisabled('prazo', false);
                 }
-                
-                const dataInicio = new Date(`${dataInicioStr}T00:00:00`);
-                const resultado = calcularPrazoFinal(dataInicio, diasUteis);
-                
-                ultimoResultado = { ...resultado, tipo: 'prazoFinal' };
-
-                document.getElementById('data-final').textContent = resultado.dataFinal.toLocaleDateString('pt-BR');
-                resultadoDiv.classList.remove('hidden');
-
-                renderizarDetalhes(detalhesLista, resultado.detalhes);
-                detalhesDiv.classList.remove('hidden');
-                exportDiv.classList.remove('hidden');
-
-            } catch (error) {
-                errorDiv.textContent = error.message;
-                errorDiv.classList.remove('hidden');
-            } finally {
-                btnText.textContent = 'Calcular Prazo Final';
-                loader.classList.add('hidden');
-            }
+            }, 0);
         });
 
-        document.getElementById('citacao-form').addEventListener('submit', (event) => {
+        document.getElementById('intimacao-form').addEventListener('submit', (event) => {
             event.preventDefault();
+            clearUI('prazo', ['prazo-data-inicio', 'prazo-dias-uteis']);
+            setUIDisabled('intimacao', true);
 
-            const btnText = document.getElementById('btn-citacao-text');
-            const loader = document.getElementById('loader-citacao');
-            const resultadoDiv = document.getElementById('resultado-citacao-div');
-            const errorDiv = document.getElementById('error-citacao-div');
-            const detalhesDiv = document.getElementById('detalhes-citacao-div');
-            const detalhesLista = document.getElementById('detalhes-citacao-lista');
-            const exportDiv = document.getElementById('export-div');
-
-            document.getElementById('resultado-div').classList.add('hidden');
-            document.getElementById('detalhes-div').classList.add('hidden');
-            document.getElementById('error-div').classList.add('hidden');
-
-            resultadoDiv.classList.add('hidden');
-            errorDiv.classList.add('hidden');
-            detalhesDiv.classList.add('hidden');
-            exportDiv.classList.add('hidden');
-            btnText.textContent = 'Calculando...';
-            loader.classList.remove('hidden');
-
-            try {
-                const dataEnvioStr = document.getElementById('data-envio').value;
-                if (!dataEnvioStr) {
-                    throw new Error("Por favor, preencha a data de disponibilização/envio.");
+            setTimeout(() => {
+                try {
+                    const dataEnvioStr = document.getElementById('intimacao-data-envio').value;
+                    if (!dataEnvioStr) {
+                        throw new Error("Preencha a data de disponibilização/envio.");
+                    }
+                    const resultado = calcularDataIntimacao(new Date(`${dataEnvioStr}T00:00:00`));
+                    ultimoResultado = { ...resultado, tipo: 'dataIntimacao' };
+                    document.getElementById('intimacao-data-final').textContent = resultado.dataFinal.toLocaleDateString('pt-BR');
+                    renderizarDetalhes(document.getElementById('intimacao-detalhes-lista'), resultado.detalhes);
+                    document.getElementById('intimacao-resultado-area').classList.remove('hidden');
+                    document.getElementById('export-div').classList.remove('hidden');
+                } catch (error) {
+                    document.getElementById('intimacao-error-div').textContent = error.message;
+                    document.getElementById('intimacao-error-div').classList.remove('hidden');
+                } finally {
+                    setUIDisabled('intimacao', false);
                 }
-
-                const dataEnvio = new Date(`${dataEnvioStr}T00:00:00`);
-                const resultado = calcularDataIntimacao(dataEnvio);
-
-                ultimoResultado = { ...resultado, tipo: 'dataIntimacao' };
-
-                document.getElementById('data-final-citacao').textContent = resultado.dataFinal.toLocaleDateString('pt-BR');
-                resultadoDiv.classList.remove('hidden');
-
-                renderizarDetalhes(detalhesLista, resultado.detalhes);
-                detalhesDiv.classList.remove('hidden');
-                exportDiv.classList.remove('hidden');
-
-            } catch (error) {
-                errorDiv.textContent = error.message;
-                errorDiv.classList.remove('hidden');
-            } finally {
-                btnText.textContent = 'Calcular Data da Intimação';
-                loader.classList.add('hidden');
-            }
+            }, 0);
         });
 
-        document.getElementById('export-pdf-btn').addEventListener('click', exportarParaPDF);
-    </script>
+        // Listeners para os novos botões
+        document.getElementById('prazo-clear-btn').addEventListener('click', () => clearUI('prazo', ['prazo-data-inicio', 'prazo-dias-uteis']));
+        document.getElementById('intimacao-clear-btn').addEventListener('click', () => clearUI('intimacao', ['intimacao-data-envio']));
+        document.getElementById('prazo-copy-btn').addEventListener('click', () => copyResult('prazo'));
+        document.getElementById('intimacao-copy-btn').addEventListener('click', () => copyResult('intimacao'));
+        
+        // Exportação para PDF (sem alterações na lógica interna)
+        document.getElementById('export-pdf-btn').addEventListener('click', () => {
+             if (!ultimoResultado) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let y = 35;
+            doc.setFontSize(12);
+            doc.setTextColor(0);
 
+            if (ultimoResultado.tipo === 'prazoFinal') {
+                doc.setFontSize(18);
+                doc.text("Relatório de Contagem de Prazo Final", 105, 20, { align: "center" });
+                doc.setFontSize(12);
+                doc.text(`1º Dia do Prazo (Início): ${new Date(`${document.getElementById('prazo-data-inicio').value}T00:00:00`).toLocaleDateString('pt-BR')}`, 14, y);
+                doc.text(`Dias Úteis Contados: ${document.getElementById('prazo-dias-uteis').value}`, 14, y + 7);
+                doc.text(`Data Final Encontrada: ${ultimoResultado.dataFinal.toLocaleDateString('pt-BR')}`, 14, y + 14);
+            } else {
+                doc.setFontSize(18);
+                doc.text("Relatório de Cálculo da Data da Intimação", 105, 20, { align: "center" });
+                doc.setFontSize(12);
+                doc.text(`Data de Envio/Disponibilização: ${new Date(`${document.getElementById('intimacao-data-envio').value}T00:00:00`).toLocaleDateString('pt-BR')}`, 14, y);
+                doc.text(`Data da Intimação Encontrada: ${ultimoResultado.dataFinal.toLocaleDateString('pt-BR')}`, 14, y + 7);
+            }
+            
+            y += 30;
+            doc.setFontSize(14);
+            doc.text("Detalhamento do Cálculo", 14, y);
+            doc.setLineWidth(0.5);
+            doc.line(14, y + 2, 196, y + 2);
+            y += 10;
+
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text("Data", 14, y); doc.text("Dia da Semana", 50, y); doc.text("Status / Detalhe", 130, y);
+            y += 3;
+            doc.setLineWidth(0.2);
+            doc.line(14, y, 196, y);
+            y += 5;
+            doc.setTextColor(0);
+
+            ultimoResultado.detalhes.forEach(dia => {
+                const diaFormatado = dia.data.toLocaleDateString('pt-BR');
+                const nomeDiaSemana = diasDaSemana[dia.data.getDay()];
+                let statusText = dia.status === 'Dia útil' ? `Dia útil #${dia.diaUtilNumero}` : (dia.nomeFeriado || 'Fim de semana');
+                const lines = doc.splitTextToSize(statusText, 65);
+                const blockHeight = lines.length * 5;
+                if (y + blockHeight > 280) { doc.addPage(); y = 20; }
+                doc.text(diaFormatado, 14, y); doc.text(nomeDiaSemana, 50, y); doc.text(lines, 130, y);
+                y += blockHeight + 2;
+            });
+
+            doc.save(`calculo_prazo_${new Date().toISOString().split('T')[0]}.pdf`);
+        });
+
+    </script>
 </body>
 </html>
+
