@@ -147,105 +147,182 @@
     <script>
         // --- CONFIGURAÇÃO E DADOS ---
         const feriadosCSV = `FERIADOS,DIA
-"Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",05/08/2024
-"Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",06/08/2024
-"Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",07/08/2024
-"Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",08/08/2024
-"Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",09/08/2024
-Dia do Advogado,11/08/2024
-Elevação do Amazonas a categoria de província,05/09/2024
-Ponto Facultativo,06/09/2024
-Independência,07/09/2024
-N. S. Aparecida,12/10/2024
-Aniversário de Manaus,24/10/2024
-Ponto Facultativo,25/10/2024
-Dia do Servidor,28/10/2024
-Finados,02/11/2024
-Semana Nacional de Conciliação,04/11/2024
-Semana Nacional de Conciliação,05/11/2024
-Semana Nacional de Conciliação,06/11/2024
-Semana Nacional de Conciliação,07/11/2024
-Semana Nacional de Conciliação,08/11/2024
-Proclamação da República,15/11/2024
-Eleição da OAB - Portaria N° 4270/2024,19/11/2024
-Consciência Negra,20/11/2024
-"Nossa Senhora da Conceição / Dia da Justiça",08/12/2024
-Dia do Ministério Público,14/12/2024
-Recesso Forense,20/12/2024
-Recesso Forense,21/12/2024
-Recesso Forense,22/12/2024
-Recesso Forense,23/12/2024
-Recesso Forense,24/12/2024
-Recesso Forense,25/12/2024
-Recesso Forense,26/12/2024
-Recesso Forense,27/12/2024
-Recesso Forense,28/12/2024
-Recesso Forense,29/12/2024
-Recesso Forense,30/12/2024
-Recesso Forense,31/12/2024
-Recesso Forense,01/01/2025
-Recesso Forense,02/01/2025
-Recesso Forense,03/01/2025
-Recesso Forense,04/01/2025
-Recesso Forense,05/01/2025
-Recesso Forense,06/01/2025
-Prazo Suspenso - art. 220 do CPC,07/01/2025
-Prazo Suspenso - art. 220 do CPC,08/01/2025
-Prazo Suspenso - art. 220 do CPC,09/01/2025
-Prazo Suspenso - art. 220 do CPC,10/01/2025
-Prazo Suspenso - art. 220 do CPC,11/01/2025
-Prazo Suspenso - art. 220 do CPC,12/01/2025
-Prazo Suspenso - art. 220 do CPC,13/01/2025
-Prazo Suspenso - art. 220 do CPC,14/01/2025
-Prazo Suspenso - art. 220 do CPC,15/01/2025
-Prazo Suspenso - art. 220 do CPC,16/01/2025
-Prazo Suspenso - art. 220 do CPC,17/01/2025
-Prazo Suspenso - art. 220 do CPC,18/01/2025
-Prazo Suspenso - art. 220 do CPC,19/01/2025
-Prazo Suspenso - art. 220 do CPC,20/01/2025
-Carnaval,03/03/2025
-Carnaval,04/03/2025
-Carnaval,05/03/2025
-Quinta-Feira Santa,17/04/2025
-"Paixão de Cristo Sexta-feira Santa",18/04/2025
-Tiradentes,21/04/2025
-Dia do Trabalhador,01/05/2025
-Ponto Facultativo,02/05/2025
-Dia do Defensor,19/05/2025
-Corpus Christi,19/06/2025
-Ponto Facultativo,20/06/2025
-Festival de Parintins,27/06/2025
-Instalação do Judiciário,04/07/2025
-"Semana de Atenção à Pessoa Idosa",04/08/2025
-"Semana de Atenção à Pessoa Idosa",05/08/2025
-"Semana de Atenção à Pessoa Idosa",06/08/2025
-"Semana de Atenção à Pessoa Idosa",07/08/2025
-"Semana de Atenção à Pessoa Idosa",08/08/2025
-Dia do Advogado,11/08/2025
-"Elevação do Amazonas a categoria de província",05/09/2025
-"Independência do Brasil",07/09/2025
-"N. S. Aparecida",12/10/2025
-"Aniversário de Manaus",24/10/2025
-Dia do Servidor,28/10/2025
-Finados,02/11/2025
-"Proclamação da República",15/11/2025
-"Consciência Negra",20/11/2025
-Ponto Facultativo,21/11/2025
-"N. S. da Conceição",08/12/2025
-"Dia do Ministério Público",14/12/2025
-Recesso Forense,20/12/2025
-Recesso Forense,21/12/2025
-Recesso Forense,22/12/2025
-Recesso Forense,23/12/2025
-Recesso Forense,24/12/2025
-Recesso Forense,25/12/2025
-Recesso Forense,26/12/2025
-Recesso Forense,27/12/2025
-Recesso Forense,28/12/2025
-Recesso Forense,29/12/2025
-Recesso Forense,30/12/2025
-Recesso Forense,31/12/2025
-`;
+    "Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",05/08/2024
+    "Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",06/08/2024
+    "Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",07/08/2024
+    "Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",08/08/2024
+    "Semana de Atenção à Pessoa Idosa no Primeiro Grau - PORTARIA Nº 1667, DE 16 DE MAIO DE 2024.",09/08/2024
+    Dia do Advogado,11/08/2024
+    Elevação do Amazonas a categoria de província,05/09/2024
+    Ponto Facultativo,06/09/2024
+    Independência,07/09/2024
+    N. S. Aparecida,12/10/2024
+    Aniversário de Manaus,24/10/2024
+    Ponto Facultativo,25/10/2024
+    Dia do Servidor,28/10/2024
+    Finados,02/11/2024
+    Semana Nacional de Conciliação,04/11/2024
+    Semana Nacional de Conciliação,05/11/2024
+    Semana Nacional de Conciliação,06/11/2024
+    Semana Nacional de Conciliação,07/11/2024
+    Semana Nacional de Conciliação,08/11/2024
+    Proclamação da República,15/11/2024
+    Eleição da OAB - Portaria N° 4270/2024,19/11/2024
+    Consciência Negra,20/11/2024
+    "Nossa Senhora da Conceição (Feriado Estadual) / Dia Consagrado à Justiça (Feriado forense)",08/12/2024
+    Dia do Ministério Público,14/12/2024
+    Recesso Forense,20/12/2024
+    Recesso Forense,21/12/2024
+    Recesso Forense,22/12/2024
+    Recesso Forense,23/12/2024
+    Recesso Forense,24/12/2024
+    Recesso Forense,25/12/2024
+    Recesso Forense,26/12/2024
+    Recesso Forense,27/12/2024
+    Recesso Forense,28/12/2024
+    Recesso Forense,29/12/2024
+    Recesso Forense,30/12/2024
+    Recesso Forense,31/12/2024
+    Recesso Forense,01/01/2025
+    Recesso Forense,02/01/2025
+    Recesso Forense,03/01/2025
+    Recesso Forense,04/01/2025
+    Recesso Forense,05/01/2025
+    Recesso Forense,06/01/2025
+    Recesso Forense,07/01/2025
+    Prazo Suspenso - art. 220 do CPC,08/01/2025
+    Prazo Suspenso - art. 220 do CPC,09/01/2025
+    Prazo Suspenso - art. 220 do CPC,10/01/2025
+    Prazo Suspenso - art. 220 do CPC,11/01/2025
+    Prazo Suspenso - art. 220 do CPC,12/01/2025
+    Prazo Suspenso - art. 220 do CPC,13/01/2025
+    Prazo Suspenso - art. 220 do CPC,14/01/2025
+    Prazo Suspenso - art. 220 do CPC,15/01/2025
+    Prazo Suspenso - art. 220 do CPC,16/01/2025
+    Prazo Suspenso - art. 220 do CPC,17/01/2025
+    Prazo Suspenso - art. 220 do CPC,18/01/2025
+    Prazo Suspenso - art. 220 do CPC,19/01/2025
+    Prazo Suspenso - art. 220 do CPC,20/01/2025
+    Carnaval,03/03/2025
+    Carnaval,04/03/2025
+    Carnaval,05/03/2025
+    Quinta-Feira Santa,17/04/2025
+    Paixão de Cristo Sexta-feira Santa,18/04/2025
+    Tiradentes,21/04/2025
+    Dia do Trabalhador,01/05/2025
+    Ponto Facultativo,02/05/2025
+    Dia do Defensor,19/05/2025
+    Corpus Christi,19/06/2025
+    Ponto Facultativo,20/06/2025
+    Festival de Parintins,27/06/2025
+    Instalação do Judiciário,04/07/2025
+    "Semana de Atenção à Pessoa Idosa - PORTARIA Nº 2602-2025",04/08/2025
+    "Semana de Atenção à Pessoa Idosa - PORTARIA Nº 2602-2025",05/08/2025
+    "Semana de Atenção à Pessoa Idosa - PORTARIA Nº 2602-2025",06/08/2025
+    "Semana de Atenção à Pessoa Idosa - PORTARIA Nº 2602-2025",07/08/2025
+    "Semana de Atenção à Pessoa Idosa - PORTARIA Nº 2602-2025",08/08/2025
+    Dia do Advogado,11/08/2025
+    Elevação do Amazonas a categoria de província,05/09/2025
+    Independência do Brasil,07/09/2025
+    N. S. Aparecida,12/10/2025
+    Aniversário de Manaus,24/10/2025
+    Ponto Facultativo,27/10/2025
+    Dia do Servidor,28/10/2025
+    Finados,02/11/2025
+    Proclamação da República,15/11/2025
+    Consciência Negra,20/11/2025
+    Ponto Facultativo,21/11/2025
+    N. S. da Conceição,08/12/2025
+    Dia do Ministério Público,14/12/2025
+    Recesso Forense,20/12/2025
+    Recesso Forense,21/12/2025
+    Recesso Forense,22/12/2025
+    Recesso Forense,23/12/2025
+    Recesso Forense,24/12/2025
+    Recesso Forense,25/12/2025
+    Recesso Forense,26/12/2025
+    Recesso Forense,27/12/2025
+    Recesso Forense,28/12/2025
+    Recesso Forense,29/12/2025
+    Recesso Forense,30/12/2025
+    Recesso Forense,31/12/2025
+    Recesso Forense,01/01/2026
+    Recesso Forense,02/01/2026
+    Recesso Forense,03/01/2026
+    Recesso Forense,04/01/2026
+    Recesso Forense,05/01/2026
+    Recesso Forense,06/01/2026
+    Prazo Suspenso - art. 220 do CPC,07/01/2026
+    Prazo Suspenso - art. 220 do CPC,08/01/2026
+    Prazo Suspenso - art. 220 do CPC,09/01/2026
+    Prazo Suspenso - art. 220 do CPC,10/01/2026
+    Prazo Suspenso - art. 220 do CPC,11/01/2026
+    Prazo Suspenso - art. 220 do CPC,12/01/2026
+    Prazo Suspenso - art. 220 do CPC,13/01/2026
+    Prazo Suspenso - art. 220 do CPC,14/01/2026
+    Prazo Suspenso - art. 220 do CPC,15/01/2026
+    Prazo Suspenso - art. 220 do CPC,16/01/2026
+    Prazo Suspenso - art. 220 do CPC,17/01/2026
+    Prazo Suspenso - art. 220 do CPC,18/01/2026
+    Prazo Suspenso - art. 220 do CPC,19/01/2026
+    Prazo Suspenso - art. 220 do CPC,20/01/2026
+    Carnaval,16/02/2026
+    Carnaval,17/02/2026
+    Carnaval,18/02/2026
+    Quinta-Feira Santa,02/04/2026
+    Paixão de Cristo Sexta-feira Santa,03/04/2026
+    Ponto Facultativo - Tiradentes,20/04/2026
+    Tiradentes,21/04/2026
+    Dia do Trabalhador,01/05/2026
+    Dia da Defensoria Pública,19/05/2026
+    Corpus Christi,04/06/2026
+    Ponto Facultativo,05/06/2026
+    Instalação do Judiciário,04/07/2026
+    Dia do Advogado,11/08/2026
+    Elevação do Amazonas a categoria de província,05/09/2026
+    Independência do Brasil,07/09/2026
+    N. S. Aparecida,12/10/2026
+    Aniversário de Manaus,24/10/2026
+    Dia do Servidor,28/10/2026
+    Finados,02/11/2026
+    Proclamação da República,15/11/2026
+    Consciência Negra,20/11/2026
+    Ponto Facultativo,07/12/2026
+    N. S. da Conceição,08/12/2026
+    Dia do Ministério Público,14/12/2026
+    Recesso Forense,20/12/2026
+    Recesso Forense,21/12/2026
+    Recesso Forense,22/12/2026
+    Recesso Forense,23/12/2026
+    Recesso Forense,24/12/2026
+    Recesso Forense,25/12/2026
+    Recesso Forense,26/12/2026
+    Recesso Forense,27/12/2026
+    Recesso Forense,28/12/2026
+    Recesso Forense,29/12/2026
+    Recesso Forense,30/12/2026
+    Recesso Forense,31/12/2026
+    Recesso Forense,01/01/2027
+    Recesso Forense,02/01/2027
+    Recesso Forense,03/01/2027
+    Recesso Forense,04/01/2027
+    Recesso Forense,05/01/2027
+    Recesso Forense,06/01/2027
+    Prazo Suspenso - art. 220 do CPC,07/01/2027
+    Prazo Suspenso - art. 220 do CPC,08/01/2027
+    Prazo Suspenso - art. 220 do CPC,09/01/2027
+    Prazo Suspenso - art. 220 do CPC,10/01/2027
+    Prazo Suspenso - art. 220 do CPC,11/01/2027
+    Prazo Suspenso - art. 220 do CPC,12/01/2027
+    Prazo Suspenso - art. 220 do CPC,13/01/2027
+    Prazo Suspenso - art. 220 do CPC,14/01/2027
+    Prazo Suspenso - art. 220 do CPC,15/01/2027
+    Prazo Suspenso - art. 220 do CPC,16/01/2027
+    Prazo Suspenso - art. 220 do CPC,17/01/2027
+    Prazo Suspenso - art. 220 do CPC,18/01/2027
+    Prazo Suspenso - art. 220 do CPC,19/01/2027
+    Prazo Suspenso - art. 220 do CPC,20/01/2027
+    `;
         
         let listaDeFeriados = {};
         let ultimoResultado = null;
